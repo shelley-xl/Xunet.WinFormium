@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 /// <summary>
 /// 依赖解析器
 /// </summary>
-public class DependencyResolver 
+public class DependencyResolver
 {
     static DependencyResolver? _resolver;
 
