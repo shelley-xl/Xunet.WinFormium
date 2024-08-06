@@ -5,7 +5,6 @@ on:
     branches: [ master ]
     paths:
       - 'src/**'
-      - 'tests/**'
   pull_request:
     branches: [ master ]
  
@@ -20,7 +19,7 @@ jobs:
     - name: Setup .NET 8.0-windows
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 8.0.100
+        dotnet-version: 8.0.100-windows
         
     - name: Install dependencies
       run: dotnet restore
