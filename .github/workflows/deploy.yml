@@ -16,10 +16,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Setup .NET 8.0-windows
+    - name: Setup .NET 8.0
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 8.0.100-windows
+        dotnet-version: 8.0.100
         
     - name: Install dependencies
       run: dotnet restore
