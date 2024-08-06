@@ -1,5 +1,6 @@
 ﻿namespace Xunet.WinFormium.Core;
 
+using FluentScheduler;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SqlSugar;
@@ -64,13 +65,15 @@ public static class ServiceConfiguration
             db.CodeFirst.InitTables(startupOptions.Storage.EntityTypes);
         }
 
-        DependencyResolver.Initialize(services.BuildServiceProvider());
-
         if (startupOptions != null && startupOptions.Generator != null)
         {
             var options = new IdGeneratorOptions(startupOptions.Generator.WorkerId);
 
             YitIdHelper.SetIdGenerator(options);
         }
+
+        JobManager.Initialize();
+
+        DependencyResolver.Initialize(services.BuildServiceProvider());
     }
 }

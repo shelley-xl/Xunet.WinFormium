@@ -1,4 +1,4 @@
-namespace Xunet.WinFormium;
+ï»¿namespace Xunet.WinFormium;
 
 using System.ComponentModel;
 using System.Reflection;
@@ -11,92 +11,92 @@ using Xunet.WinFormium.Core;
 using Yitter.IdGenerator;
 
 /// <summary>
-/// ´°Ìå»ùÀà
+/// çª—ä½“åŸºç±»
 /// </summary>
 public abstract class BaseForm : Form
 {
-    #region ×Ö¶Î
+    #region å­—æ®µ
 
-    #region Ë½ÓĞ
+    #region ç§æœ‰
 
     /// <summary>
-    /// ÅäÖÃ
+    /// é…ç½®
     /// </summary>
     /// <returns></returns>
     IConfigurationRoot Configuration { get; } = DependencyResolver.Current?.GetRequiredService<IConfigurationRoot>() ?? throw new InvalidOperationException("IConfigurationRoot Get Failed.");
 
     #endregion
 
-    #region Ö»¶Á
+    #region åªè¯»
 
     /// <summary>
-    /// °æ±¾ºÅ
+    /// ç‰ˆæœ¬å·
     /// </summary>
     protected string Version { get; } = $"v{Assembly.GetExecutingAssembly().GetName().Version}";
 
     /// <summary>
-    /// Ä¬ÈÏÇëÇó¿Í»§¶Ë
+    /// é»˜è®¤è¯·æ±‚å®¢æˆ·ç«¯
     /// </summary>
     protected HttpClient DefaultClient { get; } = DependencyResolver.Current?.GetRequiredService<IHttpClientFactory>()?.CreateClient("default") ?? throw new InvalidOperationException("DefaultClient Create Failed.");
 
     /// <summary>
-    /// Êı¾İ¿â·ÃÎÊ
+    /// æ•°æ®åº“è®¿é—®
     /// </summary>
     protected ISqlSugarClient Db { get; } = DependencyResolver.Current?.GetRequiredService<ISqlSugarClient>() ?? throw new InvalidOperationException("DbContext Get Failed.");
 
     #endregion
 
-    #region ¶ÁĞ´
+    #region è¯»å†™
 
     /// <summary>
-    /// ¶àÏß³ÌTokenSource
+    /// å¤šçº¿ç¨‹TokenSource
     /// </summary>
     protected CancellationTokenSource TokenSource { get; set; } = new();
 
     #endregion
 
-    #region ¾²Ì¬
+    #region é™æ€
 
     /// <summary>
-    /// Ñ©»¨Id
+    /// é›ªèŠ±Id
     /// </summary>
     protected static string NextIdString => YitIdHelper.NextId().ToString();
 
     #endregion
 
-    #region ³éÏó
+    #region æŠ½è±¡
 
     /// <summary>
-    /// ±êÌâ
+    /// æ ‡é¢˜
     /// </summary>
     protected abstract string BaseText { get; }
 
     #endregion
 
-    #region ĞéÊôĞÔ
+    #region è™šå±æ€§
 
     /// <summary>
-    /// ÊÇ·ñÆôÓÃ×î´ó»¯¿Ø¼ş
+    /// æ˜¯å¦å¯ç”¨æœ€å¤§åŒ–æ§ä»¶
     /// </summary>
     protected virtual bool BaseMaximizeBox { get; } = true;
 
     /// <summary>
-    /// ´°Ìå±³¾°É«
+    /// çª—ä½“èƒŒæ™¯è‰²
     /// </summary>
     protected virtual Color BaseBackColor { get; } = DefaultBackColor;
 
     /// <summary>
-    /// ´°Ìå±ß¿òÑùÊ½
+    /// çª—ä½“è¾¹æ¡†æ ·å¼
     /// </summary>
     protected virtual FormBorderStyle BaseFormBorderStyle { get; } = FormBorderStyle.Sizable;
 
     /// <summary>
-    /// ´°Ìå´óĞ¡
+    /// çª—ä½“å¤§å°
     /// </summary>
     protected virtual Size BaseClientSize { get; } = new Size(400, 400);
 
     /// <summary>
-    /// ¹¤×÷ÖÜÆÚÆµÂÊ£¨µ¥Î»£ºÃë£©£¬ÉèÖÃ 0 Ê±½ö¹¤×÷Ò»´Î
+    /// å·¥ä½œå‘¨æœŸé¢‘ç‡ï¼ˆå•ä½ï¼šç§’ï¼‰ï¼Œè®¾ç½® 0 æ—¶ä»…å·¥ä½œä¸€æ¬¡
     /// </summary>
     protected virtual int BaseDoWorkInterval { get; } = 0;
 
@@ -104,17 +104,17 @@ public abstract class BaseForm : Form
 
     #endregion
 
-    #region Éè¼ÆÆ÷
+    #region è®¾è®¡å™¨
 
     /// <summary>
-    ///  ±ØĞèµÄÉè¼Æ±äÁ¿¡£
+    ///  å¿…éœ€çš„è®¾è®¡å˜é‡ã€‚
     /// </summary>
     readonly IContainer? components = null;
 
     /// <summary>
-    ///  ÇåÀíËùÓĞÕıÔÚÊ¹ÓÃµÄ×ÊÔ´¡£
+    ///  æ¸…ç†æ‰€æœ‰æ­£åœ¨ä½¿ç”¨çš„èµ„æºã€‚
     /// </summary>
-    /// <param name="disposing">Èç¹ûÓ¦´¦ÖÃÍĞ¹Ü×ÊÔ´£¬ÔòÎª true£»·ñÔòÎª false¡£</param>
+    /// <param name="disposing">å¦‚æœåº”å¤„ç½®æ‰˜ç®¡èµ„æºï¼Œåˆ™ä¸º trueï¼›å¦åˆ™ä¸º falseã€‚</param>
     protected override void Dispose(bool disposing)
     {
         if (disposing && (components != null))
@@ -124,11 +124,11 @@ public abstract class BaseForm : Form
         base.Dispose(disposing);
     }
 
-    #region Windows´°ÌåÉè¼ÆÆ÷Éú³ÉµÄ´úÂë
+    #region Windowsçª—ä½“è®¾è®¡å™¨ç”Ÿæˆçš„ä»£ç 
 
     /// <summary>
-    ///  Éè¼ÆÆ÷Ö§³ÖËùĞèµÄ·½·¨-²»ÒªĞŞ¸Ä
-    ///  Ê¹ÓÃ´úÂë±à¼­Æ÷ĞŞ¸Ä´Ë·½·¨µÄÄÚÈİ¡£
+    ///  è®¾è®¡å™¨æ”¯æŒæ‰€éœ€çš„æ–¹æ³•-ä¸è¦ä¿®æ”¹
+    ///  ä½¿ç”¨ä»£ç ç¼–è¾‘å™¨ä¿®æ”¹æ­¤æ–¹æ³•çš„å†…å®¹ã€‚
     /// </summary>
     void InitializeComponent()
     {
@@ -156,10 +156,10 @@ public abstract class BaseForm : Form
 
     #endregion
 
-    #region ¹¹Ôìº¯Êı
+    #region æ„é€ å‡½æ•°
 
     /// <summary>
-    /// ¹¹Ôìº¯Êı
+    /// æ„é€ å‡½æ•°
     /// </summary>
     public BaseForm()
     {
@@ -169,10 +169,10 @@ public abstract class BaseForm : Form
 
     #endregion
 
-    #region ³õÊ¼»¯¿Ø¼ş
+    #region åˆå§‹åŒ–æ§ä»¶
 
     /// <summary>
-    /// ³õÊ¼»¯¿Ø¼ş
+    /// åˆå§‹åŒ–æ§ä»¶
     /// </summary>
     protected virtual void InitializeControl()
     {
@@ -181,10 +181,10 @@ public abstract class BaseForm : Form
 
     #endregion
 
-    #region ´°Ìå¼ÓÔØÊÂ¼ş
+    #region çª—ä½“åŠ è½½äº‹ä»¶
 
     /// <summary>
-    /// ´°Ìå¼ÓÔØÊÂ¼ş
+    /// çª—ä½“åŠ è½½äº‹ä»¶
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
@@ -202,10 +202,10 @@ public abstract class BaseForm : Form
 
     #endregion
 
-    #region ´°Ìå¹Ø±ÕÊÂ¼ş
+    #region çª—ä½“å…³é—­äº‹ä»¶
 
     /// <summary>
-    /// ´°Ìå¹Ø±ÕÊÂ¼ş
+    /// çª—ä½“å…³é—­äº‹ä»¶
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
@@ -220,12 +220,12 @@ public abstract class BaseForm : Form
 
     #endregion
 
-    #region Ğé·½·¨
+    #region è™šæ–¹æ³•
 
-    #region ¹¤×÷Çø¼ä
+    #region å·¥ä½œåŒºé—´
 
     /// <summary>
-    /// ¹¤×÷Çø¼ä
+    /// å·¥ä½œåŒºé—´
     /// </summary>
     /// <param name="cancellationToken"></param>
     protected virtual void DoWork(CancellationToken cancellationToken)
@@ -235,10 +235,10 @@ public abstract class BaseForm : Form
 
     #endregion
 
-    #region ´¿ÎÄ±¾Êä³ö
+    #region çº¯æ–‡æœ¬è¾“å‡º
 
     /// <summary>
-    /// ´¿ÎÄ±¾Êä³ö
+    /// çº¯æ–‡æœ¬è¾“å‡º
     /// </summary>
     /// <param name="form"></param>
     /// <param name="text"></param>
@@ -261,10 +261,10 @@ public abstract class BaseForm : Form
 
     #endregion
 
-    #region ÁĞ±íÈÕÖ¾Êä³ö
+    #region åˆ—è¡¨æ—¥å¿—è¾“å‡º
 
     /// <summary>
-    /// ÁĞ±íÈÕÖ¾Êä³ö
+    /// åˆ—è¡¨æ—¥å¿—è¾“å‡º
     /// </summary>
     /// <param name="form"></param>
     /// <param name="text"></param>
@@ -293,7 +293,7 @@ public abstract class BaseForm : Form
             box.SelectionStart = box.TextLength;
             box.SelectionLength = 0;
             box.SelectionColor = color ?? Color.Black;
-            box.AppendText($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}£º{text}\r\n");
+            box.AppendText($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}ï¼š{text}\r\n");
             box.SelectionColor = box.ForeColor;
             box.ScrollToCaret();
             box.Focus();
@@ -302,10 +302,10 @@ public abstract class BaseForm : Form
 
     #endregion
 
-    #region ¶şÎ¬ÂëÊä³ö
+    #region äºŒç»´ç è¾“å‡º
 
     /// <summary>
-    /// ¶şÎ¬ÂëÊä³ö
+    /// äºŒç»´ç è¾“å‡º
     /// </summary>
     /// <param name="form"></param>
     /// <param name="url"></param>
@@ -327,7 +327,7 @@ public abstract class BaseForm : Form
             form.Controls.Add(new Label
             {
                 Name = "Message",
-                Text = "ÓÃ [ Î¢ĞÅ ] É¨Ò»É¨",
+                Text = "ç”¨ [ å¾®ä¿¡ ] æ‰«ä¸€æ‰«",
                 Font = new Font(FontFamily.GenericSansSerif, 10),
                 ForeColor = Color.Gray,
                 Width = Width,
@@ -339,14 +339,14 @@ public abstract class BaseForm : Form
 
     #endregion
 
-    #region ĞòÁĞ»¯
+    #region åºåˆ—åŒ–
 
     /// <summary>
-    /// ĞòÁĞ»¯
+    /// åºåˆ—åŒ–
     /// </summary>
-    /// <param name="value">¶ÔÏóÖµ</param>
-    /// <param name="namingStrategy">ÃüÃû²ßÂÔ£º0 Ä¬ÈÏ£¬1 Ğ¡ÍÕ·å£¬2 ÉßĞÎ</param>
-    /// <param name="dateFormat">Ê±¼ä¸ñÊ½£¬Ä¬ÈÏ£ºyyyy-MM-dd HH:mm:ss</param>
+    /// <param name="value">å¯¹è±¡å€¼</param>
+    /// <param name="namingStrategy">å‘½åç­–ç•¥ï¼š0 é»˜è®¤ï¼Œ1 å°é©¼å³°ï¼Œ2 è›‡å½¢</param>
+    /// <param name="dateFormat">æ—¶é—´æ ¼å¼ï¼Œé»˜è®¤ï¼šyyyy-MM-dd HH:mm:ss</param>
     /// <returns></returns>
     protected virtual string JsonSerializeObject(object? value, int namingStrategy = 0, string dateFormat = "yyyy-MM-dd HH:mm:ss")
     {
@@ -381,15 +381,15 @@ public abstract class BaseForm : Form
 
     #endregion
 
-    #region ·´ĞòÁĞ»¯
+    #region ååºåˆ—åŒ–
 
     /// <summary>
-    /// ·´ĞòÁĞ»¯
+    /// ååºåˆ—åŒ–
     /// </summary>
-    /// <typeparam name="T">·ºĞÍÀàĞÍ</typeparam>
-    /// <param name="json">JSON×Ö·û´®</param>
-    /// <param name="namingStrategy">ÃüÃû²ßÂÔ£º0 Ä¬ÈÏ£¬1 Ğ¡ÍÕ·å£¬2 ÉßĞÎ</param>
-    /// <param name="dateFormat">Ê±¼ä¸ñÊ½£¬Ä¬ÈÏ£ºyyyy-MM-dd HH:mm:ss</param>
+    /// <typeparam name="T">æ³›å‹ç±»å‹</typeparam>
+    /// <param name="json">JSONå­—ç¬¦ä¸²</param>
+    /// <param name="namingStrategy">å‘½åç­–ç•¥ï¼š0 é»˜è®¤ï¼Œ1 å°é©¼å³°ï¼Œ2 è›‡å½¢</param>
+    /// <param name="dateFormat">æ—¶é—´æ ¼å¼ï¼Œé»˜è®¤ï¼šyyyy-MM-dd HH:mm:ss</param>
     /// <returns></returns>
     protected virtual T? JsonDeserializeObject<T>(string json, int namingStrategy = 0, string dateFormat = "yyyy-MM-dd HH:mm:ss")
     {
@@ -424,10 +424,10 @@ public abstract class BaseForm : Form
 
     #endregion
 
-    #region »ñÈ¡ÅäÖÃ
+    #region è·å–é…ç½®
 
     /// <summary>
-    /// »ñÈ¡ÅäÖÃ
+    /// è·å–é…ç½®
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="key"></param>
@@ -438,21 +438,11 @@ public abstract class BaseForm : Form
     }
 
     /// <summary>
-    /// »ñÈ¡ÅäÖÃ
+    /// è·å–é…ç½®
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
     public virtual string? GetConfigValue(string key)
-    {
-        return GetConfigStringValue(key);
-    }
-
-    /// <summary>
-    /// »ñÈ¡ÅäÖÃ
-    /// </summary>
-    /// <param name="key"></param>
-    /// <returns></returns>
-    public virtual string? GetConfigStringValue(string key)
     {
         return Configuration[key];
     }

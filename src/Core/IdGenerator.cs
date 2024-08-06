@@ -8,5 +8,5 @@ public class IdGenerator
     /// <summary>
     /// 唯一工作机器Id
     /// </summary>
-    public ushort WorkerId { get; set; }
+    public ushort WorkerId { get; set; } = 1;
 }
