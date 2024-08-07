@@ -9,6 +9,7 @@ using FluentScheduler;
 using SqlSugar;
 using Xunet.WinFormium.Core;
 using Yitter.IdGenerator;
+using HtmlAgilityPack;
 
 /// <summary>
 /// 窗体基类
@@ -23,7 +24,12 @@ public abstract class BaseForm : Form
     /// 配置
     /// </summary>
     /// <returns></returns>
-    IConfigurationRoot Configuration { get; } = DependencyResolver.Current?.GetRequiredService<IConfigurationRoot>() ?? throw new InvalidOperationException("IConfigurationRoot Get Failed.");
+    static IConfigurationRoot Configuration { get; } = DependencyResolver.Current?.GetRequiredService<IConfigurationRoot>() ?? throw new InvalidOperationException("IConfigurationRoot Get Failed.");
+
+    /// <summary>
+    /// HTML文档
+    /// </summary>
+    static HtmlDocument? HtmlDocument { get; set; }
 
     #endregion
 
@@ -446,6 +452,155 @@ public abstract class BaseForm : Form
     {
         return Configuration[key];
     }
+
+    #endregion
+
+    #region HtmlAgilityPack
+
+    #region 创建HTML文档
+
+    /// <summary>
+    /// 创建HTML文档
+    /// </summary>
+    /// <param name="html"></param>
+    protected virtual void CreateHtmlDocument(string html)
+    {
+        HtmlDocument = new HtmlDocument();
+
+        HtmlDocument.LoadHtml(html);
+    }
+
+    #endregion
+
+    #region 通过XPath查找单个元素
+
+    /// <summary>
+    /// 通过XPath查找单个元素
+    /// </summary>
+    /// <param name="xpath">xpath</param>
+    /// <returns></returns>
+    public virtual object? FindElementByXPath(string xpath)
+    {
+        return HtmlDocument?.DocumentNode.SelectSingleNode(xpath);
+    }
+
+    #endregion
+
+    #region 通过XPath查找集合元素
+
+    /// <summary>
+    /// 通过XPath查找集合元素
+    /// </summary>
+    /// <param name="xpath">xpath</param>
+    /// <returns></returns>
+    public virtual List<object>? FindElementsByXPath(string xpath)
+    {
+        return HtmlDocument?.DocumentNode.SelectNodes(xpath).ToList<object>();
+    }
+
+    #endregion
+
+    #region 通过XPath检查元素是否存在
+
+    /// <summary>
+    /// 通过XPath检查元素是否存在
+    /// </summary>
+    /// <param name="xpath">xpath</param>
+    /// <returns></returns>
+    public virtual bool? IsElementExist(string xpath)
+    {
+        return HtmlDocument?.DocumentNode.SelectNodes(xpath).Count != 0;
+    }
+
+    #endregion
+
+    #region 通过XPath查找指定元素对象的单个元素
+
+    /// <summary>
+    /// 通过XPath查找指定元素对象的单个元素
+    /// </summary>
+    /// <param name="element">元素对象</param>
+    /// <param name="xpath">xpath</param>
+    /// <returns></returns>
+    public virtual object? FindElementByXPath(object? element, string xpath)
+    {
+        return (element as HtmlNode)?.SelectSingleNode(xpath);
+    }
+
+    #endregion
+
+    #region 通过XPath查找指定元素对象的集合元素
+
+    /// <summary>
+    /// 通过XPath查找指定元素对象的集合元素
+    /// </summary>
+    /// <param name="element">元素对象</param>
+    /// <param name="xpath">xpath</param>
+    /// <returns></returns>
+    public virtual List<object>? FindElementsByXPath(object? element, string xpath)
+    {
+        return (element as HtmlNode)?.SelectNodes(xpath).ToList<object>();
+    }
+
+    #endregion
+
+    #region 通过XPath检查指定元素对象的元素是否存在
+
+    /// <summary>
+    /// 通过XPath检查指定元素对象的元素是否存在
+    /// </summary>
+    /// <param name="element">元素对象</param>
+    /// <param name="xpath">xpath</param>
+    /// <returns></returns>
+    public virtual bool? IsElementExist(object? element, string xpath)
+    {
+        return (element as HtmlNode)?.SelectNodes(xpath).Count != 0;
+    }
+
+    #endregion
+
+    #region 查找元素对象的文本值
+
+    /// <summary>
+    /// 查找元素对象的文本值
+    /// </summary>
+    /// <param name="element">元素对象</param>
+    /// <returns></returns>
+    public virtual string? FindText(object? element)
+    {
+        return (element as HtmlNode)?.InnerText;
+    }
+
+    #endregion
+
+    #region 查找元素对象的隐藏文本值
+
+    /// <summary>
+    /// 查找元素对象的隐藏文本值
+    /// </summary>
+    /// <param name="element">元素对象</param>
+    /// <returns></returns>
+    public virtual string? FindHiddenText(object? element)
+    {
+        return (element as HtmlNode)?.GetAttributeValue("textContent", null);
+    }
+
+    #endregion
+
+    #region 查找元素对象的属性值
+
+    /// <summary>
+    /// 查找元素对象的属性值
+    /// </summary>
+    /// <param name="element">元素对象</param>
+    /// <param name="attribute">属性名称</param>
+    /// <returns></returns>
+    public virtual string? FindAttributeValue(object? element, string attribute)
+    {
+        return (element as HtmlNode)?.GetAttributeValue(attribute, null);
+    }
+
+    #endregion
 
     #endregion
 
