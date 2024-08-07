@@ -95,3 +95,7 @@ public class MainForm : BaseForm
     }
 }
 ```
+
+## 更新日志
+
+@import "CHANGELOG.md"
