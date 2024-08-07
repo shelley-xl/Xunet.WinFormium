@@ -493,9 +493,9 @@ public abstract class BaseForm : Form
     /// </summary>
     /// <param name="xpath">xpath</param>
     /// <returns></returns>
-    public virtual List<object>? FindElementsByXPath(string xpath)
+    public virtual List<object> FindElementsByXPath(string xpath)
     {
-        return HtmlDocument?.DocumentNode.SelectNodes(xpath).ToList<object>();
+        return HtmlDocument?.DocumentNode.SelectNodes(xpath).ToList<object>() ?? [];
     }
 
     #endregion
@@ -507,7 +507,7 @@ public abstract class BaseForm : Form
     /// </summary>
     /// <param name="xpath">xpath</param>
     /// <returns></returns>
-    public virtual bool? IsElementExist(string xpath)
+    public virtual bool IsElementExist(string xpath)
     {
         return HtmlDocument?.DocumentNode.SelectNodes(xpath).Count != 0;
     }
@@ -537,9 +537,9 @@ public abstract class BaseForm : Form
     /// <param name="element">元素对象</param>
     /// <param name="xpath">xpath</param>
     /// <returns></returns>
-    public virtual List<object>? FindElementsByXPath(object? element, string xpath)
+    public virtual List<object> FindElementsByXPath(object? element, string xpath)
     {
-        return (element as HtmlNode)?.SelectNodes(xpath).ToList<object>();
+        return (element as HtmlNode)?.SelectNodes(xpath).ToList<object>() ?? [];
     }
 
     #endregion
@@ -552,7 +552,7 @@ public abstract class BaseForm : Form
     /// <param name="element">元素对象</param>
     /// <param name="xpath">xpath</param>
     /// <returns></returns>
-    public virtual bool? IsElementExist(object? element, string xpath)
+    public virtual bool IsElementExist(object? element, string xpath)
     {
         return (element as HtmlNode)?.SelectNodes(xpath).Count != 0;
     }
@@ -566,9 +566,9 @@ public abstract class BaseForm : Form
     /// </summary>
     /// <param name="element">元素对象</param>
     /// <returns></returns>
-    public virtual string? FindText(object? element)
+    public virtual string FindText(object? element)
     {
-        return (element as HtmlNode)?.InnerText;
+        return (element as HtmlNode)?.InnerText ?? string.Empty;
     }
 
     #endregion
@@ -580,9 +580,9 @@ public abstract class BaseForm : Form
     /// </summary>
     /// <param name="element">元素对象</param>
     /// <returns></returns>
-    public virtual string? FindHiddenText(object? element)
+    public virtual string FindHiddenText(object? element)
     {
-        return (element as HtmlNode)?.GetAttributeValue("textContent", null);
+        return (element as HtmlNode)?.GetAttributeValue("textContent", null) ?? string.Empty;
     }
 
     #endregion
@@ -595,9 +595,9 @@ public abstract class BaseForm : Form
     /// <param name="element">元素对象</param>
     /// <param name="attribute">属性名称</param>
     /// <returns></returns>
-    public virtual string? FindAttributeValue(object? element, string attribute)
+    public virtual string FindAttributeValue(object? element, string attribute)
     {
-        return (element as HtmlNode)?.GetAttributeValue(attribute, null);
+        return (element as HtmlNode)?.GetAttributeValue(attribute, null) ?? string.Empty;
     }
 
     #endregion

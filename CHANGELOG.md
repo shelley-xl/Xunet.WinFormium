@@ -1,8 +1,17 @@
+## [1.0.4](https://github.com/shelley-xl/Xunet.WinFormium/compare/v1.0.3...v1.0.4) (2024-08-07)
+
+### Bug Fixes
+
+- 优化
+
 ## [1.0.3](https://github.com/shelley-xl/Xunet.WinFormium/compare/v1.0.2...v1.0.3) (2024-08-07)
 
 ### Features
 
 - 新增HtmlAgilityPack辅助方法
+
+### Bug Fixes
+
 - 修复已知问题
 
 ## [1.0.2](https://github.com/shelley-xl/Xunet.WinFormium/compare/v1.0.1...v1.0.2) (2024-08-06)
