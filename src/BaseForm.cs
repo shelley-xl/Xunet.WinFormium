@@ -189,6 +189,8 @@ public abstract class BaseForm : Form
 
     #region 窗体加载事件
 
+    readonly static AsyncSemaphore _async = new();
+
     /// <summary>
     /// 窗体加载事件
     /// </summary>
@@ -196,14 +198,35 @@ public abstract class BaseForm : Form
     /// <param name="e"></param>
     protected virtual void Form_Load(object? sender, EventArgs e)
     {
-        if (BaseDoWorkInterval > 0)
+        Task.Run(() =>
         {
-            JobManager.AddJob(() => DoWork(TokenSource.Token), schedule => schedule.ToRunNow().AndEvery(BaseDoWorkInterval).Seconds());
-        }
-        else
-        {
-            DoWork(TokenSource.Token);
-        }
+            async void DoWork()
+            {
+                using (await _async.WaitAsync())
+                {
+                    try
+                    {
+                        await DoWorkAsync(TokenSource.Token);
+                    }
+                    catch (OperationCanceledException ex)
+                    {
+                        await DoCanceledExceptionAsync(ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        await DoExceptionAsync(ex, TokenSource.Token);
+                    }
+                }
+            }
+            if (BaseDoWorkInterval > 0)
+            {
+                JobManager.AddJob(DoWork, schedule => schedule.WithName("DoWork").ToRunNow().AndEvery(BaseDoWorkInterval).Seconds());
+            }
+            else
+            {
+                DoWork();
+            }
+        });
     }
 
     #endregion
@@ -226,20 +249,31 @@ public abstract class BaseForm : Form
 
     #endregion
 
-    #region 虚方法
-
-    #region 工作区间
+    #region 抽象方法
 
     /// <summary>
     /// 工作区间
     /// </summary>
     /// <param name="cancellationToken"></param>
-    protected virtual void DoWork(CancellationToken cancellationToken)
-    {
-        // TODO
-    }
+    protected abstract Task DoWorkAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// 工作异常
+    /// </summary>
+    /// <param name="ex"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    protected abstract Task DoExceptionAsync(Exception ex, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// 工作取消
+    /// </summary>
+    /// <returns></returns>
+    protected abstract Task DoCanceledExceptionAsync(OperationCanceledException ex);
 
     #endregion
+
+    #region 虚方法
 
     #region 纯文本输出
 
@@ -495,7 +529,7 @@ public abstract class BaseForm : Form
     /// <returns></returns>
     public virtual List<object> FindElementsByXPath(string xpath)
     {
-        return HtmlDocument?.DocumentNode.SelectNodes(xpath).ToList<object>() ?? [];
+        return HtmlDocument?.DocumentNode.SelectNodes(xpath)?.ToList<object>() ?? [];
     }
 
     #endregion
@@ -509,7 +543,7 @@ public abstract class BaseForm : Form
     /// <returns></returns>
     public virtual bool IsElementExist(string xpath)
     {
-        return HtmlDocument?.DocumentNode.SelectNodes(xpath).Count != 0;
+        return (HtmlDocument?.DocumentNode.SelectNodes(xpath)?.Count ?? 0) != 0;
     }
 
     #endregion
@@ -539,7 +573,7 @@ public abstract class BaseForm : Form
     /// <returns></returns>
     public virtual List<object> FindElementsByXPath(object? element, string xpath)
     {
-        return (element as HtmlNode)?.SelectNodes(xpath).ToList<object>() ?? [];
+        return (element as HtmlNode)?.SelectNodes(xpath)?.ToList<object>() ?? [];
     }
 
     #endregion
@@ -554,7 +588,7 @@ public abstract class BaseForm : Form
     /// <returns></returns>
     public virtual bool IsElementExist(object? element, string xpath)
     {
-        return (element as HtmlNode)?.SelectNodes(xpath).Count != 0;
+        return ((element as HtmlNode)?.SelectNodes(xpath)?.Count ?? 0) != 0;
     }
 
     #endregion
@@ -598,6 +632,20 @@ public abstract class BaseForm : Form
     public virtual string FindAttributeValue(object? element, string attribute)
     {
         return (element as HtmlNode)?.GetAttributeValue(attribute, null) ?? string.Empty;
+    }
+
+    #endregion
+
+    #region 去首尾空格换行制表符
+
+    /// <summary>
+    /// 去首尾空格换行制表符
+    /// </summary>
+    /// <param name="text"></param>
+    /// <returns></returns>
+    protected virtual string Trim(string text)
+    {
+        return text.Trim([' ', '\t', '\r', '\n']);
     }
 
     #endregion

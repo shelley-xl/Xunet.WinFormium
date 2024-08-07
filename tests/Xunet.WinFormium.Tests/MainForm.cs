@@ -10,37 +10,49 @@ public class MainForm : BaseForm
 
     protected override int BaseDoWorkInterval => GetConfigValue<int>("DoWorkInterval");
 
-    protected override void DoWork(CancellationToken cancellationToken)
+    protected override async Task DoWorkAsync(CancellationToken cancellationToken)
     {
-        Task.Run(async () =>
+        AppendBox(this, "正在测试，请稍后 ...", ColorTranslator.FromHtml("#1296db"));
+
+        var html = await DefaultClient.GetStringAsync("https://www.cnblogs.com/", cancellationToken);
+
+        CreateHtmlDocument(html);
+
+        var list = FindElementsByXPath("//*[@id=\"post_list\"]/article");
+
+        foreach (var item in list)
         {
-            try
+            var model = new CnBlogsModel
             {
-                AppendBox(this, "正在测试，请稍后 ...", ColorTranslator.FromHtml("#1296db"));
+                Id = NextIdString,
+                Title = FindText(FindElementByXPath(item, "section/div/a")),
+                Url = FindAttributeValue(FindElementByXPath(item, "section/div/a"), "href"),
+                Summary = Trim(FindText(FindElementByXPath(item, "section/div/p"))),
+                CreateTime = DateTime.Now
+            };
 
-                foreach (var item in Enumerable.Range(0, 50))
-                {
-                    var model = new TestModel
-                    {
-                        Id = NextIdString,
-                        UserName = "测试",
-                        CreateTime = DateTime.Now
-                    };
+            AppendBox(this, $"{model.Title} ...");
 
-                    AppendBox(this, $"正在工作 {model.Id} ...");
+            await Db.Insertable(model).ExecuteCommandAsync(cancellationToken);
 
-                    await Db.Insertable(model).ExecuteCommandAsync();
+            await Task.Delay(new Random().Next(100, 500), cancellationToken);
+        }
 
-                    await Task.Delay(new Random().Next(100, 500));
-                }
+        AppendBox(this, "测试完成！", ColorTranslator.FromHtml("#1296db"));
+    }
 
-                AppendBox(this, "测试完成！", ColorTranslator.FromHtml("#1296db"));
-            }
-            catch (Exception ex)
-            {
-                AppendBox(this, "系统错误！", Color.Red);
-                AppendBox(this, ex.ToString(), Color.Red);
-            }
-        }, cancellationToken);
+    protected override async Task DoExceptionAsync(Exception ex, CancellationToken cancellationToken)
+    {
+        AppendBox(this, "系统异常！", Color.Red);
+        AppendBox(this, ex.ToString(), Color.Red);
+
+        await Task.CompletedTask;
+    }
+
+    protected override async Task DoCanceledExceptionAsync(OperationCanceledException ex)
+    {
+        AppendBox(this, "任务取消！", Color.Red);
+
+        await Task.CompletedTask;
     }
 }

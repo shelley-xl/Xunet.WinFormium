@@ -1,3 +1,14 @@
+## [1.0.6](https://github.com/shelley-xl/Xunet.WinFormium/compare/v1.0.5...v1.0.6) (2024-08-07)
+
+### Features
+
+- 新增去首尾空格换行制表符
+
+### Bug Fixes
+
+- 周期作业，解决并发执行带来的问题
+- 修复已知问题
+
 ## [1.0.5](https://github.com/shelley-xl/Xunet.WinFormium/compare/v1.0.4...v1.0.5) (2024-08-07)
 
 ### Bug Fixes

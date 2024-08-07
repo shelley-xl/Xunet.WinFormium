@@ -27,7 +27,7 @@ internal static class Program
             Storage = new()
             {
                 StorageName = "Xunet.WinFormium.Tests",
-                EntityTypes = [typeof(TestModel)]
+                EntityTypes = [typeof(CnBlogsModel)]
             },
             Generator = new()
             {

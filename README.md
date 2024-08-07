@@ -22,7 +22,10 @@ PM> Install-Package Xunet.WinFormium
 Program.cs
 
 ```c#
+namespace Xunet.WinFormium.Tests;
+
 using Xunet.WinFormium.Core;
+using Xunet.WinFormium.Tests.Models;
 
 internal static class Program
 {
@@ -47,8 +50,8 @@ internal static class Program
             },
             Storage = new()
             {
-                //StorageName = "Xunet.WinFormium.Tests",
-                //EntityTypes = [typeof(TestModel)]
+                StorageName = "Xunet.WinFormium.Tests",
+                EntityTypes = [typeof(CnBlogsModel)]
             },
             Generator = new()
             {
@@ -64,7 +67,9 @@ internal static class Program
 MainForm.cs
 
 ```c#
-using Xunet.WinFormium
+namespace Xunet.WinFormium.Tests;
+
+using Xunet.WinFormium.Tests.Models;
 
 public class MainForm : BaseForm
 {
@@ -72,27 +77,85 @@ public class MainForm : BaseForm
 
     protected override Size BaseClientSize => new(600, 400);
 
-    protected override int BaseDoWorkInterval => 60;
+    protected override int BaseDoWorkInterval => GetConfigValue<int>("DoWorkInterval");
 
-    protected override void DoWork(CancellationToken cancellationToken)
+    protected override async Task DoWorkAsync(CancellationToken cancellationToken)
     {
-        Task.Run(async () =>
+        AppendBox(this, "正在测试，请稍后 ...", ColorTranslator.FromHtml("#1296db"));
+
+        var html = await DefaultClient.GetStringAsync("https://www.cnblogs.com/", cancellationToken);
+
+        CreateHtmlDocument(html);
+
+        var list = FindElementsByXPath("//*[@id=\"post_list\"]/article");
+
+        foreach (var item in list)
         {
-            try
+            var model = new CnBlogsModel
             {
-                AppendBox(this, "开始工作，请稍后 ...", ColorTranslator.FromHtml("#1296db"));
+                Id = NextIdString,
+                Title = FindText(FindElementByXPath(item, "section/div/a")),
+                Url = FindAttributeValue(FindElementByXPath(item, "section/div/a"), "href"),
+                Summary = Trim(FindText(FindElementByXPath(item, "section/div/p"))),
+                CreateTime = DateTime.Now
+            };
 
-                // TODO
+            AppendBox(this, $"{model.Title} ...");
 
-                AppendBox(this, "工作完成！", ColorTranslator.FromHtml("#1296db"));
-            }
-            catch (Exception ex)
-            {
-                AppendBox(this, "系统错误！", Color.Red);
-                AppendBox(this, ex.ToString(), Color.Red);
-            }
-        }, cancellationToken);
+            await Db.Insertable(model).ExecuteCommandAsync(cancellationToken);
+
+            await Task.Delay(new Random().Next(100, 500), cancellationToken);
+        }
+
+        AppendBox(this, "测试完成！", ColorTranslator.FromHtml("#1296db"));
     }
+
+    protected override async Task DoExceptionAsync(Exception ex, CancellationToken cancellationToken)
+    {
+        AppendBox(this, "系统异常！", Color.Red);
+        AppendBox(this, ex.ToString(), Color.Red);
+
+        await Task.CompletedTask;
+    }
+
+    protected override async Task DoCanceledExceptionAsync(OperationCanceledException ex)
+    {
+        AppendBox(this, "任务取消！", Color.Red);
+
+        await Task.CompletedTask;
+    }
+}
+```
+
+CnBlogsModel.cs
+
+```c#
+namespace Xunet.WinFormium.Tests.Models;
+
+using SqlSugar;
+
+[SugarTable("cnblogs")]
+public class CnBlogsModel
+{
+    [SugarColumn(IsPrimaryKey = true)]
+    public string? Id { get; set; }
+
+    public string? Title { get; set; }
+
+    public string? Url { get; set; }
+
+    public string? Summary { get; set; }
+
+    public DateTime? CreateTime { get; set; }
+}
+```
+
+appsettings.json
+
+```json
+{
+  // 工作周期频率（单位：秒），设置 0 时仅工作一次
+  "DoWorkInterval": 60
 }
 ```
 
