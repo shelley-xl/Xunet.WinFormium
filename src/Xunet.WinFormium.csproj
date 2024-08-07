@@ -31,6 +31,7 @@
 		<PackageTags>tools,helper,winform,effective</PackageTags>
 		<PackageIcon>logo.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageChangelogFile>CHANGELOG.md</PackageChangelogFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageProjectUrl>https://github.com/shelley-xl/Xunet.WinFormium</PackageProjectUrl>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
