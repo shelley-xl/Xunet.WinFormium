@@ -3,7 +3,7 @@ namespace Xunet.WinFormium.Tests;
 using Xunet.WinFormium.Core;
 using Xunet.WinFormium.Tests.Models;
 
-internal static class Program
+public partial class Program
 {
     /// <summary>
     ///  The main entry point for the application.
@@ -15,26 +15,33 @@ internal static class Program
         // see https://aka.ms/applicationconfiguration.
         ApplicationConfiguration.Initialize();
 
-        ServiceConfiguration.Initialize(new StartupOptions
+        var builder = WinFormiumApplication.CreateBuilder();
+
+        builder.Services.AddWinFormium<MainForm>(options =>
         {
-            Headers = new()
+            options.Headers = new()
             {
                 {
                     HeaderNames.UserAgent,
                     "Mozilla/5.0 (iPhone; CPU iPhone OS 6_1_3 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Mobile/10B329 MicroMessenger/5.0.1"
                 }
-            },
-            Storage = new()
+            };
+            options.Storage = new()
             {
-                StorageName = "Xunet.WinFormium.Tests",
+                DataVersion = "24.8.9.1822",
+                DbName = "Xunet.WinFormium.Tests",
                 EntityTypes = [typeof(CnBlogsModel)]
-            },
-            Generator = new()
+            };
+            options.Snowflake = new()
             {
                 WorkerId = 1
-            }
+            };
         });
 
-        Application.Run(new MainForm());
+        var app = builder.Build();
+
+        app.UseWinFormium();
+
+        app.Run();
     }
 }

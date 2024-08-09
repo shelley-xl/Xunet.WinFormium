@@ -1,3 +1,15 @@
+## [1.0.7](https://github.com/shelley-xl/Xunet.WinFormium/compare/v1.0.6...v1.0.7) (2024-08-09)
+
+### Features
+
+- 定时作业支持Cron表达式
+- 支持依赖注入
+- 优雅的启动方式
+
+### Bug Fixes
+
+- 修复已知问题
+
 ## [1.0.6](https://github.com/shelley-xl/Xunet.WinFormium/compare/v1.0.5...v1.0.6) (2024-08-07)
 
 ### Features
