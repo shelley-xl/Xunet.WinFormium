@@ -300,7 +300,7 @@ public abstract class BaseForm : Form, IDisposable
 
     #endregion
 
-    #region 方法
+    #region 可继承方法
 
     #region 在UI线程上异步执行Action
 
@@ -807,6 +807,38 @@ public abstract class BaseForm : Form, IDisposable
     protected static string CreateNextIdString()
     {
         return YitIdHelper.NextId().ToString();
+    }
+
+    #endregion
+
+    #region 停止工作
+
+    /// <summary>
+    /// 停止工作
+    /// </summary>
+    protected static void StopWork()
+    {
+        if (!TokenSource.IsCancellationRequested)
+        {
+            TokenSource.Cancel();
+        }
+        JobManager.Stop();
+    }
+
+    #endregion
+
+    #region 开始工作
+
+    /// <summary>
+    /// 开始工作
+    /// </summary>
+    protected static void StartWork()
+    {
+        if (TokenSource.IsCancellationRequested)
+        {
+            TokenSource = new();
+        }
+        JobManager.Start();
     }
 
     #endregion

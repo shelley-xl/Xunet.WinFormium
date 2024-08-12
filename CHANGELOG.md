@@ -1,3 +1,10 @@
+## [1.0.8](https://github.com/shelley-xl/Xunet.WinFormium/compare/v1.0.7...v1.0.8) (2024-08-12)
+
+### Features
+
+- 支持使用单例模式启动（互斥锁）
+- 周期作业支持停止/恢复
+
 ## [1.0.7](https://github.com/shelley-xl/Xunet.WinFormium/compare/v1.0.6...v1.0.7) (2024-08-09)
 
 ### Features

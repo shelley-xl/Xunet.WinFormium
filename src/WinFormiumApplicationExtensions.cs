@@ -5,6 +5,7 @@
 
 namespace Xunet.WinFormium;
 
+using Microsoft.Extensions.DependencyInjection;
 using Xunet.FluentScheduler;
 using Xunet.WinFormium.Core;
 
@@ -23,6 +24,18 @@ public static class WinFormiumApplicationExtensions
         JobManager.Initialize();
 
         DependencyResolver.Initialize(app.Services);
+
+        return app;
+    }
+
+    /// <summary>
+    /// 使用互斥锁
+    /// </summary>
+    /// <param name="app"></param>
+    /// <returns></returns>
+    public static WinFormiumApplication UseMutex(this WinFormiumApplication app)
+    {
+        app.IsUseMutex = true;
 
         return app;
     }

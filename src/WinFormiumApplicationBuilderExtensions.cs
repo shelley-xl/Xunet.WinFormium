@@ -93,12 +93,20 @@ public static class WinFormiumApplicationBuilderExtensions
             services.AddSingleton(createAction);
         }
 
-        var forms = typeof(T).Assembly.GetTypes().Where(x => x != typeof(T) && (x.BaseType == typeof(BaseForm) || x.BaseType == typeof(Form)));
+        Type[] types = [typeof(BaseForm), typeof(Form)];
+
+        var forms = typeof(T).Assembly.GetTypes().Where(x => x is not T && types.Contains(x.BaseType)).ToList();
 
         foreach (var form in forms)
         {
             services.AddSingleton(form);
         }
+
+        var name = typeof(T).Assembly.GetName().Name;
+
+        var mutex = new Mutex(false, name);
+
+        services.AddSingleton(mutex);
 
         return services;
     }

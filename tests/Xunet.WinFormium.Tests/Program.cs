@@ -39,4 +39,6 @@ var app = builder.Build();
 
 app.UseWinFormium();
 
+app.UseMutex();
+
 app.Run();

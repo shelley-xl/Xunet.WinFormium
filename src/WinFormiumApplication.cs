@@ -23,6 +23,11 @@ public class WinFormiumApplication
     public IServiceProvider Services { get; private set; }
 
     /// <summary>
+    /// 是否使用互斥锁
+    /// </summary>
+    internal bool IsUseMutex { get; set; }
+
+    /// <summary>
     /// CreateBuilder
     /// </summary>
     /// <returns></returns>
@@ -54,6 +59,17 @@ public class WinFormiumApplication
     /// </summary>
     public void Run()
     {
+        using var mutex = Services.GetRequiredService<Mutex>();
+
+        if (IsUseMutex)
+        {
+            if (!mutex.WaitOne(0, false))
+            {
+                MessageBox.Show("已经有一个正在运行的程序，请勿重复运行！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+        }
+
         var createMainWindowAction = Services.GetRequiredService<WinFormiumCreationAction>();
 
         var mainWindowOptions = Services.GetRequiredService<WinFormiumOptions>();
@@ -63,5 +79,10 @@ public class WinFormiumApplication
         createMainWindowAction.Dispose();
 
         Application.Run(mainWindowOptions.Context);
+
+        if (IsUseMutex)
+        {
+            mutex?.ReleaseMutex();
+        }
     }
 }
