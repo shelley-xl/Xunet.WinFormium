@@ -1,3 +1,9 @@
+## [1.0.10](https://github.com/shelley-xl/Xunet.WinFormium/commit/5280b2a8d28251b84de2b0ff9f13abe646b110e3) (2024-08-14)
+
+### Features
+
+- 新增异常处理
+
 ## [1.0.9](https://github.com/shelley-xl/Xunet.WinFormium/commit/e25b41f52b9a2ee858eba201c4c2514e15830918) (2024-08-14)
 
 ### Features
