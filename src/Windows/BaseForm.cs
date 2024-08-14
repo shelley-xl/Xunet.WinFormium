@@ -128,8 +128,6 @@ public abstract class BaseForm : Form, IDisposable
             components.Dispose();
         }
 
-        HostWindow = null;
-
         base.Dispose(disposing);
     }
 
@@ -270,6 +268,7 @@ public abstract class BaseForm : Form, IDisposable
         }
         if (e.CloseReason == CloseReason.UserClosing)
         {
+            HostWindow = null;
             Application.Exit();
         }
     }

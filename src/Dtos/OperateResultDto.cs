@@ -15,7 +15,7 @@ public class OperateResultDto
     /// <summary>
     /// 状态码
     /// </summary>
-    public StatusCodes? Code { get; set; }
+    public ResultCode? Code { get; set; }
 
     /// <summary>
     /// 消息
@@ -50,7 +50,7 @@ public class PageResultDto<T> : OperateResultDto<T>
 /// <summary>
 /// 状态码
 /// </summary>
-public enum StatusCodes
+public enum ResultCode
 {
     /// <summary>
     /// 成功
@@ -74,5 +74,11 @@ public enum StatusCodes
     /// 系统异常
     /// </summary>
     [Description("系统异常")]
-    SystemException = 3
+    SystemException = 3,
+
+    /// <summary>
+    /// 404
+    /// </summary>
+    [Description("404")]
+    NotFound = 4,
 }

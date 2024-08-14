@@ -8,6 +8,17 @@
 		<UseWindowsForms>true</UseWindowsForms>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<!-- version numbers will be updated by build -->
+		<Version>$([System.DateTime]::Now.ToString("yy.M.d.HHmm"))</Version>
+		<AssemblyVersion>$(Version)</AssemblyVersion>
+		<FileVersion>$(Version)</FileVersion>
+		<Authors>徐来</Authors>
+		<Company>徐来</Company>
+		<Title>Xunet.WinFormium.Tests</Title>
+		<Product>Xunet.WinFormium.Tests</Product>
+		<Description>Xunet.WinFormium.Tests</Description>
+		<Summary>Xunet.WinFormium.Tests</Summary>
+		<Copyright>Copyright © 徐来 Xulai 2024</Copyright>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -6,7 +6,6 @@ using Xunet.WinFormium.Controllers;
 /// <summary>
 /// 健康检查
 /// </summary>
-[ApiExplorerSettings(GroupName = "home")]
 [Route("api/health")]
 public class HealthController : BaseController
 {

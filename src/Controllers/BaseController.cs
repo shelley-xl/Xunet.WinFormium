@@ -31,7 +31,7 @@ public class BaseController : Controller
             {
                 Data = value,
                 Total = total.Value,
-                Code = StatusCodes.Success,
+                Code = ResultCode.Success,
                 Message = "成功",
 
             }, JsonSettings.SerializerSettings(format));
@@ -41,7 +41,7 @@ public class BaseController : Controller
             return new JsonResult(new OperateResultDto<TValue>
             {
                 Data = value,
-                Code = StatusCodes.Success,
+                Code = ResultCode.Success,
                 Message = "成功",
 
             }, JsonSettings.SerializerSettings(format));
@@ -57,7 +57,7 @@ public class BaseController : Controller
     {
         return new JsonResult(new OperateResultDto
         {
-            Code = StatusCodes.Success,
+            Code = ResultCode.Success,
             Message = "成功",
         });
     }

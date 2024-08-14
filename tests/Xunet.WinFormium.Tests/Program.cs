@@ -5,10 +5,6 @@ using Xunet.WinFormium.Core;
 using Xunet.WinFormium.Tests;
 using Xunet.WinFormium.Tests.Models;
 
-// To customize application configuration such as set high DPI settings or default font,
-// see https://aka.ms/applicationconfiguration.
-ApplicationConfiguration.Initialize();
-
 var builder = WinFormiumApplication.CreateBuilder();
 
 builder.Services.AddWinFormium<MainForm>(options =>

@@ -1,15 +1,14 @@
 ﻿namespace Xunet.WinFormium.Tests.Controllers;
 
 using Microsoft.AspNetCore.Mvc;
-using SqlSugar;
 using Xunet.WinFormium.Controllers;
 using Xunet.WinFormium.Tests.Models;
+using SqlSugar;
 
 /// <summary>
 /// 首页
 /// </summary>
 /// <param name="Db"></param>
-[ApiExplorerSettings(GroupName = "home")]
 [Route("api/home")]
 public class HomeController(ISqlSugarClient Db) : BaseController
 {

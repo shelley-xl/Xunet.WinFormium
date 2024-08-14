@@ -13,6 +13,8 @@ using SqlSugar;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using Microsoft.AspNetCore.Http;
+using Xunet.WinFormium.Dtos;
 
 /// <summary>
 /// WinFormiumApplicationBuilder扩展
@@ -139,16 +141,11 @@ public static class WinFormiumApplicationBuilderExtensions
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(x =>
         {
-            x.SwaggerDoc("home", new OpenApiInfo
+            x.SwaggerDoc("v1", new OpenApiInfo
             {
                 Title = "欢迎使用 API 接口服务",
                 Description = "欢迎使用 API 接口服务",
-                Version = $"v{Assembly.GetEntryAssembly()?.GetName().Version}",
-                Contact = new OpenApiContact
-                {
-                    Name = "徐来",
-                    Email = "386710057@qq.com"
-                }
+                Version = $"v{Assembly.GetEntryAssembly()?.GetName().Version}"
             });
             x.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"), true);
             x.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetEntryAssembly()?.GetName().Name}.xml"), true);
@@ -170,7 +167,51 @@ public static class WinFormiumApplicationBuilderExtensions
             x.EnableValidator();
             // 设置隐藏models
             x.DefaultModelsExpandDepth(-1);
-            x.SwaggerEndpoint($"/swagger/home/swagger.json", "home");
+            x.SwaggerEndpoint($"/swagger/v1/swagger.json", "v1");
+        });
+        app.Use(async (context, next) =>
+        {
+            try
+            {
+                await next();
+
+                if (context.Response.StatusCode == StatusCodes.Status404NotFound)
+                {
+                    throw new WinFormiumNotFoundException();
+                }
+            }
+            catch (WinFormiumNotFoundException ex)
+            {
+                await context.Response.WriteAsJsonAsync(new OperateResultDto
+                {
+                    Code = ResultCode.NotFound,
+                    Message = ex.Message
+                });
+            }
+            catch (WinFormiumFailureException ex)
+            {
+                await context.Response.WriteAsJsonAsync(new OperateResultDto
+                {
+                    Code = ResultCode.Failure,
+                    Message = ex.Message
+                });
+            }
+            catch (WinFormiumInvalidParameterException ex)
+            {
+                await context.Response.WriteAsJsonAsync(new OperateResultDto
+                {
+                    Code = ResultCode.InvalidParameter,
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                await context.Response.WriteAsJsonAsync(new OperateResultDto
+                {
+                    Code = ResultCode.SystemException,
+                    Message = ex.ToString()
+                });
+            }
         });
 
         services.AddSingleton(app);
