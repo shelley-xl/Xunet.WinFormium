@@ -6,7 +6,6 @@
 namespace Xunet.WinFormium;
 
 using Microsoft.Extensions.DependencyInjection;
-using Xunet.FluentScheduler;
 using Xunet.WinFormium.Core;
 
 /// <summary>
@@ -14,6 +13,8 @@ using Xunet.WinFormium.Core;
 /// </summary>
 public static class WinFormiumApplicationExtensions
 {
+    static PropertyManager? Properties { get; set; }
+
     /// <summary>
     /// 使用WinFormium
     /// </summary>
@@ -21,7 +22,9 @@ public static class WinFormiumApplicationExtensions
     /// <returns></returns>
     public static WinFormiumApplication UseWinFormium(this WinFormiumApplication app)
     {
-        JobManager.Initialize();
+        Properties = app.Services.GetRequiredService<PropertyManager>();
+
+        Properties?.SetValue(nameof(UseWinFormium), true);
 
         DependencyResolver.Initialize(app.Services);
 
@@ -35,7 +38,19 @@ public static class WinFormiumApplicationExtensions
     /// <returns></returns>
     public static WinFormiumApplication UseMutex(this WinFormiumApplication app)
     {
-        app.IsUseMutex = true;
+        Properties?.SetValue(nameof(UseMutex), true);
+
+        return app;
+    }
+
+    /// <summary>
+    /// 使用WebApi
+    /// </summary>
+    /// <param name="app"></param>
+    /// <returns></returns>
+    public static WinFormiumApplication UseWebApi(this WinFormiumApplication app)
+    {
+        Properties?.SetValue(nameof(UseWebApi), true);
 
         return app;
     }

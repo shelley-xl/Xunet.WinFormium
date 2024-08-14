@@ -1,20 +1,32 @@
-﻿// THIS FILE IS PART OF Xunet.WinFormium PROJECT
-// THE Xunet.WinFormium PROJECT IS AN OPENSOURCE LIBRARY LICENSED UNDER THE MIT License.
-// COPYRIGHTS (C) 徐来 ALL RIGHTS RESERVED.
-// GITHUB: https://github.com/shelley-xl/Xunet.WinFormium
-
-namespace Xunet.WinFormium.Tests;
+﻿namespace Xunet.WinFormium.Tests;
 
 using Xunet.WinFormium.Tests.Models;
 
+/// <summary>
+/// MainForm
+/// </summary>
 public class MainForm : BaseForm
 {
+    /// <summary>
+    /// BaseText
+    /// </summary>
     protected override string BaseText => $"测试 - {Version}";
 
+    /// <summary>
+    /// BaseClientSize
+    /// </summary>
     protected override Size BaseClientSize => new(600, 400);
 
+    /// <summary>
+    /// BaseDoWorkInterval
+    /// </summary>
     protected override int BaseDoWorkInterval => GetConfigValue<int>("DoWorkInterval");
 
+    /// <summary>
+    /// DoWorkAsync
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     protected override async Task DoWorkAsync(CancellationToken cancellationToken)
     {
         AppendBox("正在测试，请稍后 ...", ColorTranslator.FromHtml("#1296db"));
@@ -48,6 +60,12 @@ public class MainForm : BaseForm
         await Task.CompletedTask;
     }
 
+    /// <summary>
+    /// DoExceptionAsync
+    /// </summary>
+    /// <param name="ex"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     protected override async Task DoExceptionAsync(Exception ex, CancellationToken cancellationToken)
     {
         AppendBox("系统异常！", Color.Red);
@@ -56,6 +74,11 @@ public class MainForm : BaseForm
         await Task.CompletedTask;
     }
 
+    /// <summary>
+    /// DoCanceledExceptionAsync
+    /// </summary>
+    /// <param name="ex"></param>
+    /// <returns></returns>
     protected override async Task DoCanceledExceptionAsync(OperationCanceledException ex)
     {
         AppendBox("任务取消！", Color.Red);

@@ -175,7 +175,7 @@ public abstract class BaseForm : Form, IDisposable
     static BaseForm()
     {
         TokenSource = new();
-        Version = $"v{Assembly.GetExecutingAssembly().GetName().Version}";
+        Version = $"v{Assembly.GetEntryAssembly()?.GetName().Version}";
         Configuration = DependencyResolver.Current?.GetRequiredService<IConfigurationRoot>() ?? throw new InvalidOperationException("No service for type 'IConfigurationRoot' has been registered.");
         DefaultClient = DependencyResolver.Current?.GetRequiredService<IHttpClientFactory>()?.CreateClient("default") ?? throw new InvalidOperationException("No service for type 'IHttpClientFactory' has been registered.");
         Db = DependencyResolver.Current?.GetRequiredService<ISqlSugarClient>() ?? throw new InvalidOperationException("No service for type 'ISqlSugarClient' has been registered.");

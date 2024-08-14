@@ -11,8 +11,9 @@
 		<DebugType>embedded</DebugType>
 		<ApplicationIcon>Resources\favicon.ico</ApplicationIcon>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
 		<!-- version numbers will be updated by build -->
-		<Version>1.0.8</Version>
+		<Version>1.0.9</Version>
 		<TotalDays>$([System.DateTime]::Now.Date.Subtract($([System.DateTime]::Parse($([System.String]::Format("{0}-8-5",2024))))).TotalDays)</TotalDays>
 		<AssemblyVersion>$(Version).$(TotalDays)</AssemblyVersion>
 		<FileVersion>$(Version).$(TotalDays)</FileVersion>
@@ -30,7 +31,7 @@
 		<RepositoryUrl>https://github.com/shelley-xl/Xunet.WinFormium</RepositoryUrl>
 		<PackageId>Xunet.WinFormium</PackageId>
 		<PackageTags>tools,helper,winform,effective</PackageTags>
-		<PackageIcon>logo.png</PackageIcon>
+		<PackageIcon>LOGO.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageProjectUrl>https://github.com/shelley-xl/Xunet.WinFormium</PackageProjectUrl>
@@ -38,11 +39,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Jint" Version="4.0.0" />
+		<PackageReference Include="Jint" Version="4.0.1" />
 		<PackageReference Include="HtmlAgilityPack" Version="1.11.62" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+		<PackageReference Include="MiniProfiler.AspNetCore" Version="4.3.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.7" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
 		<PackageReference Include="SqlSugarCore" Version="5.1.4.166" />
 		<PackageReference Include="Xunet" Version="1.0.22" />
 		<PackageReference Include="Yitter.IdGenerator" Version="1.0.14" />
@@ -65,18 +66,22 @@
 
 	<ItemGroup>
 		<None Include="..\LICENSE">
+			<Visible>false</Visible>
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
-		<None Include="..\logo.png">
+		<None Include="..\LOGO.png">
+			<Visible>false</Visible>
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
 		<None Include="..\README.md">
+			<Visible>false</Visible>
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
 		<None Include="..\CHANGELOG.md">
+			<Visible>false</Visible>
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>

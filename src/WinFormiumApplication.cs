@@ -5,7 +5,9 @@
 
 namespace Xunet.WinFormium;
 
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Xunet.WinFormium.Core;
 
 /// <summary>
 /// WinFormiumApplication
@@ -21,11 +23,6 @@ public class WinFormiumApplication
     /// Services
     /// </summary>
     public IServiceProvider Services { get; private set; }
-
-    /// <summary>
-    /// 是否使用互斥锁
-    /// </summary>
-    internal bool IsUseMutex { get; set; }
 
     /// <summary>
     /// CreateBuilder
@@ -59,9 +56,14 @@ public class WinFormiumApplication
     /// </summary>
     public void Run()
     {
-        using var mutex = Services.GetRequiredService<Mutex>();
+        var Properties = Services.GetRequiredService<PropertyManager>();
+        var UseWinFormium = Properties.GetValue<bool>(nameof(WinFormiumApplicationExtensions.UseWinFormium));
+        var UseMutex = Properties.GetValue<bool>(nameof(WinFormiumApplicationExtensions.UseMutex));
+        var UseWebApi = Properties.GetValue<bool>(nameof(WinFormiumApplicationExtensions.UseWebApi));
 
-        if (IsUseMutex)
+        // 使用互斥锁
+        using var mutex = Services.GetRequiredService<Mutex>();
+        if (UseMutex)
         {
             if (!mutex.WaitOne(0, false))
             {
@@ -70,17 +72,29 @@ public class WinFormiumApplication
             }
         }
 
-        var createMainWindowAction = Services.GetRequiredService<WinFormiumCreationAction>();
+        // 使用WebApi
+        if (UseWebApi)
+        {
+            var app = Services.GetRequiredService<WebApplication>();
 
-        var mainWindowOptions = Services.GetRequiredService<WinFormiumOptions>();
+            app.RunAsync();
+        }
 
-        createMainWindowAction.Invoke(Services);
+        // 使用WinFormium
+        if (UseWinFormium)
+        {
+            var createMainWindowAction = Services.GetRequiredService<WinFormiumCreationAction>();
 
-        createMainWindowAction.Dispose();
+            var mainWindowOptions = Services.GetRequiredService<WinFormiumOptions>();
 
-        Application.Run(mainWindowOptions.Context);
+            createMainWindowAction.Invoke(Services);
 
-        if (IsUseMutex)
+            createMainWindowAction.Dispose();
+
+            Application.Run(mainWindowOptions.Context);
+        }
+
+        if (UseMutex)
         {
             mutex?.ReleaseMutex();
         }

@@ -1,8 +1,5 @@
-// THIS FILE IS PART OF Xunet.WinFormium PROJECT
-// THE Xunet.WinFormium PROJECT IS AN OPENSOURCE LIBRARY LICENSED UNDER THE MIT License.
-// COPYRIGHTS (C) –Ï¿¥ ALL RIGHTS RESERVED.
-// GITHUB: https://github.com/shelley-xl/Xunet.WinFormium
-
+using Microsoft.Extensions.DependencyInjection;
+using SqlSugar;
 using Xunet.WinFormium;
 using Xunet.WinFormium.Core;
 using Xunet.WinFormium.Tests;
@@ -35,10 +32,17 @@ builder.Services.AddWinFormium<MainForm>(options =>
     };
 });
 
+builder.Services.AddWebApi((provider, services) =>
+{
+    services.AddSingleton(provider.GetRequiredService<ISqlSugarClient>());
+});
+
 var app = builder.Build();
 
 app.UseWinFormium();
 
 app.UseMutex();
+
+app.UseWebApi();
 
 app.Run();

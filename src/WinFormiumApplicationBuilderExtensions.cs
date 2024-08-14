@@ -10,6 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunet.WinFormium.Core;
 using Yitter.IdGenerator;
 using SqlSugar;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 /// <summary>
 /// WinFormiumApplicationBuilder扩展
@@ -21,9 +24,44 @@ public static class WinFormiumApplicationBuilderExtensions
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="services"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddWinFormium<T>(this IServiceCollection services) where T : Form
+    {
+        services.AddSingleton(new Mutex(false, typeof(T).Assembly.GetName().Name));
+
+        services.AddSingleton<PropertyManager>();
+
+        var winFormiumOpts = new WinFormiumOptions(services);
+
+        var createAction = winFormiumOpts.UseWinFormium<T>();
+
+        if (createAction != null)
+        {
+            services.AddSingleton(winFormiumOpts);
+
+            services.AddSingleton(createAction);
+        }
+
+        Type[] types = [typeof(BaseForm), typeof(Form)];
+
+        var forms = typeof(T).Assembly.GetTypes().Where(x => x.Name != typeof(T).Name && types.Contains(x.BaseType)).ToList();
+
+        foreach (var form in forms)
+        {
+            services.AddSingleton(form);
+        }
+
+        return services;
+    }
+
+    /// <summary>
+    /// 添加WinFormium
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="services"></param>
     /// <param name="setupOptions"></param>
     /// <returns></returns>
-    public static IServiceCollection AddWinFormium<T>(this IServiceCollection services, Action<StartupOptions> setupOptions) where T : Form
+    public static IServiceCollection AddWinFormium<T>(this IServiceCollection services, Action<StartupOptions> setupOptions) where T : BaseForm
     {
         var startupOptions = new StartupOptions();
 
@@ -82,31 +120,60 @@ public static class WinFormiumApplicationBuilderExtensions
             YitIdHelper.SetIdGenerator(options);
         }
 
-        var winFormiumOpts = new WinFormiumOptions(services);
+        services.AddWinFormium<T>();
 
-        var createAction = winFormiumOpts.UseWinFormium<T>();
+        return services;
+    }
 
-        if (createAction != null)
+    /// <summary>
+    /// 添加WebApi
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="setupAction"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddWebApi(this IServiceCollection services, Action<ServiceProvider, IServiceCollection> setupAction)
+    {
+        var builder = WebApplication.CreateBuilder();
+
+        builder.Services.AddControllers().AddNewtonsoftJson(JsonSettings.NewtonsoftJsonOptions());
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen(x =>
         {
-            services.AddSingleton(winFormiumOpts);
+            x.SwaggerDoc("home", new OpenApiInfo
+            {
+                Title = "欢迎使用 API 接口服务",
+                Description = "欢迎使用 API 接口服务",
+                Version = $"v{Assembly.GetEntryAssembly()?.GetName().Version}",
+                Contact = new OpenApiContact
+                {
+                    Name = "徐来",
+                    Email = "386710057@qq.com"
+                }
+            });
+            x.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"), true);
+            x.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetEntryAssembly()?.GetName().Name}.xml"), true);
+        });
 
-            services.AddSingleton(createAction);
-        }
+        setupAction.Invoke(services.BuildServiceProvider(), builder.Services);
 
-        Type[] types = [typeof(BaseForm), typeof(Form)];
+        var app = builder.Build();
 
-        var forms = typeof(T).Assembly.GetTypes().Where(x => x is not T && types.Contains(x.BaseType)).ToList();
-
-        foreach (var form in forms)
+        app.MapControllers();
+        app.UseSwagger();
+        app.UseSwaggerUI(x =>
         {
-            services.AddSingleton(form);
-        }
+            // 解决urls.primaryName无法重定向问题
+            x.ConfigObject.AdditionalItems["queryConfigEnabled"] = true;
+            x.RoutePrefix = string.Empty;
+            x.DocumentTitle = "欢迎使用 API 接口服务";
+            x.ShowExtensions();
+            x.EnableValidator();
+            // 设置隐藏models
+            x.DefaultModelsExpandDepth(-1);
+            x.SwaggerEndpoint($"/swagger/home/swagger.json", "home");
+        });
 
-        var name = typeof(T).Assembly.GetName().Name;
-
-        var mutex = new Mutex(false, name);
-
-        services.AddSingleton(mutex);
+        services.AddSingleton(app);
 
         return services;
     }
