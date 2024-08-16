@@ -1,5 +1,7 @@
 ﻿namespace Xunet.WinFormium.Tests;
 
+using SuperSpider;
+using Xunet.WinFormium.Tests.Entities;
 using Xunet.WinFormium.Tests.Models;
 
 /// <summary>
@@ -54,6 +56,22 @@ public class MainForm : BaseForm
 
             await Task.Delay(new Random().Next(100, 500), cancellationToken);
         }
+
+        using var request_wb = new Request<WeiboEntity>
+        {
+            RequestUri = new Uri("https://s.weibo.com/top/summary?cate=realtimehot"),
+            Headers =
+            {
+                { HeaderNames.Cookie, "SUB=_2AkMRPey0f8NxqwFRmP0QzG7jZIh-zA_EieKnYR1vJRMyHRl-yD9yqhMPtRB6Or3CWw-34jkWWR4Y0x2HL1v5PpcCYaf4" },
+                { HeaderNames.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36" }
+            },
+            FilterConditions = x => x.RankTop.HasValue,
+            DuplicateColumns = x => new { x.Keywords }
+        };
+
+        Request[] requests = [request_wb];
+
+        await EntitySpider.Build(requests).UseStorage(Db).RunAsync();
 
         AppendBox("测试完成！", ColorTranslator.FromHtml("#1296db"));
 

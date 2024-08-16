@@ -25,6 +25,8 @@
 		<ProjectReference Include="..\..\src\Xunet.WinFormium.csproj" />
 	</ItemGroup>
 
+
+
 	<ItemGroup>
 		<None Update="appsettings.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
