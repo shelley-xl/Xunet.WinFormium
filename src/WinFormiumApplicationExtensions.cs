@@ -32,13 +32,13 @@ public static class WinFormiumApplicationExtensions
     }
 
     /// <summary>
-    /// 使用互斥锁
+    /// 使用单例应用
     /// </summary>
     /// <param name="app"></param>
     /// <returns></returns>
-    public static WinFormiumApplication UseMutex(this WinFormiumApplication app)
+    public static WinFormiumApplication UseSingleApp(this WinFormiumApplication app)
     {
-        Properties?.SetValue(nameof(UseMutex), true);
+        Properties?.SetValue(nameof(UseSingleApp), true);
 
         return app;
     }

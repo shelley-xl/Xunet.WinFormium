@@ -90,7 +90,7 @@ public static class WinFormiumApplicationBuilderExtensions
         {
             services.AddSingleton<ISqlSugarClient>(db =>
             {
-                var assemblyName = startupOptions.GetType().Assembly.GetName().Name!;
+                var assemblyName = Assembly.GetExecutingAssembly().GetName().Name ?? "Xunet.WinFormium";
                 var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                 var dbPath = Path.Combine(appDataPath, assemblyName, "data", startupOptions.Storage.DataVersion ?? string.Empty, $"{startupOptions.Storage.DbName}.db");
                 return new SqlSugarScope(new ConnectionConfig
@@ -101,7 +101,10 @@ public static class WinFormiumApplicationBuilderExtensions
                     InitKeyType = InitKeyType.Attribute,
                     MoreSettings = new ConnMoreSettings()
                     {
-                        IsAutoRemoveDataCache = true
+                        IsAutoRemoveDataCache = true,
+                        SqliteCodeFirstEnableDefaultValue = true,
+                        SqliteCodeFirstEnableDescription = true,
+                        SqliteCodeFirstEnableDropColumn = true,
                     }
                 });
             });

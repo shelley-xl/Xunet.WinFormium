@@ -58,12 +58,12 @@ public class WinFormiumApplication
     {
         var Properties = Services.GetRequiredService<PropertyManager>();
         var UseWinFormium = Properties.GetValue<bool>(nameof(WinFormiumApplicationExtensions.UseWinFormium));
-        var UseMutex = Properties.GetValue<bool>(nameof(WinFormiumApplicationExtensions.UseMutex));
+        var UseSingleApp = Properties.GetValue<bool>(nameof(WinFormiumApplicationExtensions.UseSingleApp));
         var UseWebApi = Properties.GetValue<bool>(nameof(WinFormiumApplicationExtensions.UseWebApi));
 
-        // 使用互斥锁
+        // 使用单例应用
         using var mutex = Services.GetRequiredService<Mutex>();
-        if (UseMutex)
+        if (UseSingleApp)
         {
             if (!mutex.WaitOne(0, false))
             {
@@ -94,7 +94,7 @@ public class WinFormiumApplication
             Application.Run(mainWindowOptions.Context);
         }
 
-        if (UseMutex)
+        if (UseSingleApp)
         {
             mutex?.ReleaseMutex();
         }
