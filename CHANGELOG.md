@@ -1,3 +1,10 @@
+## [1.0.11](https://github.com/shelley-xl/Xunet.WinFormium/commit/92d6d8df7f56a918e5c348ffa93e7ec31003adf1) (2024-08-16)
+
+### Features
+
+- 优化Sqlite设置
+- 引入SuperDriver和SuperSpider
+
 ## [1.0.10](https://github.com/shelley-xl/Xunet.WinFormium/commit/5280b2a8d28251b84de2b0ff9f13abe646b110e3) (2024-08-14)
 
 ### Features
