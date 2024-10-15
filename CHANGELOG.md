@@ -1,3 +1,9 @@
+## [1.0.13](https://github.com/shelley-xl/Xunet.WinFormium/commit/87b15ac1412e3161197fd46bb23e2db5a50f1407) (2024-10-15)
+
+### Bug Fixes
+
+- ¶şÎ¬ÂëÊä³öbugĞŞ¸´
+
 ## [1.0.12](https://github.com/shelley-xl/Xunet.WinFormium/commit/bf9145421da53f996c1a983f30e080218d5dc8fb) (2024-10-15)
 
 ### Features
