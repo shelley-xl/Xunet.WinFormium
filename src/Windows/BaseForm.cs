@@ -412,10 +412,10 @@ public abstract class BaseForm : Form, IDisposable
 
         InvokeOnUIThread(() =>
         {
-            if (HostWindow.Controls.Find("Message", false).FirstOrDefault() is not Label label)
+            if (HostWindow.Controls.Find("Message", false).FirstOrDefault() is not Label Message)
             {
                 var titleHeight = HostWindow.Height - HostWindow.ClientRectangle.Height;
-                label = new Label
+                Message = new Label
                 {
                     Name = "Message",
                     ForeColor = Color.Gray,
@@ -423,9 +423,9 @@ public abstract class BaseForm : Form, IDisposable
                     Height = HostWindow.Height - titleHeight,
                     TextAlign = ContentAlignment.MiddleCenter
                 };
-                HostWindow.Controls.Add(label);
+                HostWindow.Controls.Add(Message);
             }
-            label.Text = text;
+            Message.Text = text;
         });
     }
 
@@ -444,15 +444,15 @@ public abstract class BaseForm : Form, IDisposable
 
         InvokeOnUIThread(() =>
         {
-            if (HostWindow.Controls.Find("Box", false).FirstOrDefault() is not RichTextBox box)
+            if (HostWindow.Controls.Find("Box", false).FirstOrDefault() is not RichTextBox Box)
             {
                 var offset = 0;
-                if (HostWindow.Controls.Find("Menu", false).FirstOrDefault() is MenuStrip menu)
+                if (HostWindow.Controls.Find("Menu", false).FirstOrDefault() is MenuStrip Menu)
                 {
-                    offset = menu.Height;
+                    offset = Menu.Height;
                 }
                 var titleHeight = HostWindow.Height - HostWindow.ClientRectangle.Height;
-                box = new RichTextBox
+                Box = new RichTextBox
                 {
                     Name = "Box",
                     Anchor = AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom | AnchorStyles.Left,
@@ -463,15 +463,15 @@ public abstract class BaseForm : Form, IDisposable
                     BorderStyle = BorderStyle.None,
                     Location = new Point(0, offset),
                 };
-                HostWindow.Controls.Add(box);
+                HostWindow.Controls.Add(Box);
             }
-            box.SelectionStart = box.TextLength;
-            box.SelectionLength = 0;
-            box.SelectionColor = color ?? Color.Black;
-            box.AppendText($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}：{text}\r\n");
-            box.SelectionColor = box.ForeColor;
-            box.ScrollToCaret();
-            box.Focus();
+            Box.SelectionStart = Box.TextLength;
+            Box.SelectionLength = 0;
+            Box.SelectionColor = color ?? Color.Black;
+            Box.AppendText($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}：{text}\r\n");
+            Box.SelectionColor = Box.ForeColor;
+            Box.ScrollToCaret();
+            Box.Focus();
         });
     }
 
@@ -490,9 +490,13 @@ public abstract class BaseForm : Form, IDisposable
 
         InvokeOnUIThread(() =>
         {
-            if (HostWindow.Controls.Find("QRCode", false).FirstOrDefault() is not PictureBox box)
+            if (HostWindow.Controls.Find("Message", false).FirstOrDefault() is Label Message)
             {
-                box = new PictureBox
+                HostWindow.Controls.Remove(Message);
+            }
+            if (HostWindow.Controls.Find("QRCode", false).FirstOrDefault() is not PictureBox QRCode)
+            {
+                QRCode = new PictureBox
                 {
                     Name = "QRCode",
                     Width = 300,
@@ -501,11 +505,11 @@ public abstract class BaseForm : Form, IDisposable
                     Location = new Point(50, 25),
                     SizeMode = PictureBoxSizeMode.StretchImage
                 };
-                HostWindow.Controls.Add(box);
+                HostWindow.Controls.Add(QRCode);
             }
-            if (HostWindow.Controls.Find("QRCodeMessage", false).FirstOrDefault() is not Label label)
+            if (HostWindow.Controls.Find("QRCodeMessage", false).FirstOrDefault() is not Label QRCodeMessage)
             {
-                label = new Label
+                QRCodeMessage = new Label
                 {
                     Name = "QRCodeMessage",
                     Font = new Font(FontFamily.GenericSansSerif, 10),
@@ -514,10 +518,10 @@ public abstract class BaseForm : Form, IDisposable
                     Location = new Point(0, 345),
                     TextAlign = ContentAlignment.BottomCenter
                 };
-                HostWindow.Controls.Add(label);
+                HostWindow.Controls.Add(QRCodeMessage);
             }
-            box.ImageLocation = url;
-            label.Text = text;
+            QRCode.ImageLocation = url;
+            QRCodeMessage.Text = text;
         });
     }
 
