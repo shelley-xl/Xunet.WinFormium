@@ -1,3 +1,10 @@
+## [1.0.12](https://github.com/shelley-xl/Xunet.WinFormium/commit/bf9145421da53f996c1a983f30e080218d5dc8fb) (2024-10-15)
+
+### Features
+
+- SuperDriver升级4.0.8
+- 二维码输出优化
+
 ## [1.0.11](https://github.com/shelley-xl/Xunet.WinFormium/commit/92d6d8df7f56a918e5c348ffa93e7ec31003adf1) (2024-08-16)
 
 ### Features
