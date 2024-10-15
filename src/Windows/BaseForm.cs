@@ -482,34 +482,42 @@ public abstract class BaseForm : Form, IDisposable
     /// <summary>
     /// 二维码输出
     /// </summary>
-    /// <param name="url"></param>
-    protected void AppendQRCode(string? url)
+    /// <param name="url">二维码url</param>
+    /// <param name="text">提示文本</param>
+    protected void AppendQRCode(string? url, string? text = "用 [ 微信 ] 扫一扫")
     {
         if (HostWindow == null || HostWindow.IsDisposed) return;
 
         InvokeOnUIThread(() =>
         {
-            HostWindow.Controls.Clear();
-            HostWindow.Controls.Add(new PictureBox
+            if (HostWindow.Controls.Find("QRCode", false).FirstOrDefault() is not PictureBox box)
             {
-                Name = "QRCode",
-                ImageLocation = url,
-                Width = 300,
-                Height = 300,
-                BackColor = Color.White,
-                Location = new Point(50, 25),
-                SizeMode = PictureBoxSizeMode.StretchImage
-            });
-            HostWindow.Controls.Add(new Label
+                box = new PictureBox
+                {
+                    Name = "QRCode",
+                    Width = 300,
+                    Height = 300,
+                    BackColor = Color.White,
+                    Location = new Point(50, 25),
+                    SizeMode = PictureBoxSizeMode.StretchImage
+                };
+                HostWindow.Controls.Add(box);
+            }
+            if (HostWindow.Controls.Find("QRCodeMessage", false).FirstOrDefault() is not Label label)
             {
-                Name = "Message",
-                Text = "用 [ 微信 ] 扫一扫",
-                Font = new Font(FontFamily.GenericSansSerif, 10),
-                ForeColor = Color.Gray,
-                Width = HostWindow.Width,
-                Location = new Point(0, 345),
-                TextAlign = ContentAlignment.BottomCenter
-            });
+                label = new Label
+                {
+                    Name = "QRCodeMessage",
+                    Font = new Font(FontFamily.GenericSansSerif, 10),
+                    ForeColor = Color.Gray,
+                    Width = HostWindow.Width,
+                    Location = new Point(0, 345),
+                    TextAlign = ContentAlignment.BottomCenter
+                };
+                HostWindow.Controls.Add(label);
+            }
+            box.ImageLocation = url;
+            label.Text = text;
         });
     }
 

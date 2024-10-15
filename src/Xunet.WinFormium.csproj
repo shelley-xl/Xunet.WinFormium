@@ -13,7 +13,7 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
 		<!-- version numbers will be updated by build -->
-		<Version>1.0.11</Version>
+		<Version>1.0.12</Version>
 		<TotalDays>$([System.DateTime]::Now.Date.Subtract($([System.DateTime]::Parse($([System.String]::Format("{0}-8-5",2024))))).TotalDays)</TotalDays>
 		<AssemblyVersion>$(Version).$(TotalDays)</AssemblyVersion>
 		<FileVersion>$(Version).$(TotalDays)</FileVersion>
@@ -45,7 +45,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.8" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.0" />
 		<PackageReference Include="SqlSugarCore" Version="5.1.4.166" />
-		<PackageReference Include="SuperDriver" Version="4.0.7" />
+		<PackageReference Include="SuperDriver" Version="4.0.8" />
 		<PackageReference Include="SuperSpider" Version="1.0.6" />
 		<PackageReference Include="Xunet" Version="1.0.22" />
 		<PackageReference Include="Yitter.IdGenerator" Version="1.0.14" />
