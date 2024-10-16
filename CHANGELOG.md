@@ -1,3 +1,9 @@
+## [1.0.14](https://github.com/shelley-xl/Xunet.WinFormium/commit/95af5da7d408ac772181648880d69f18f86e5538) (2024-10-16)
+
+### Features
+
+- …Ë÷√ResourcesŒ™Public
+
 ## [1.0.13](https://github.com/shelley-xl/Xunet.WinFormium/commit/87b15ac1412e3161197fd46bb23e2db5a50f1407) (2024-10-15)
 
 ### Bug Fixes
