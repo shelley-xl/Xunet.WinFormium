@@ -134,9 +134,10 @@ public static class WinFormiumApplicationBuilderExtensions
     /// 添加WebApi
     /// </summary>
     /// <param name="services"></param>
+    /// <param name="assembly"></param>
     /// <param name="setupAction"></param>
     /// <returns></returns>
-    public static IServiceCollection AddWebApi(this IServiceCollection services, Action<ServiceProvider, IServiceCollection> setupAction)
+    public static IServiceCollection AddWebApi(this IServiceCollection services, Assembly assembly, Action<ServiceProvider, IServiceCollection> setupAction)
     {
         var builder = WebApplication.CreateBuilder();
 
@@ -148,10 +149,10 @@ public static class WinFormiumApplicationBuilderExtensions
             {
                 Title = "欢迎使用 API 接口服务",
                 Description = "欢迎使用 API 接口服务",
-                Version = $"v{Assembly.GetEntryAssembly()?.GetName().Version}"
+                Version = $"v{assembly.GetName().Version}"
             });
             x.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"), true);
-            x.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetEntryAssembly()?.GetName().Name}.xml"), true);
+            x.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{assembly.GetName().Name}.xml"), true);
         });
 
         setupAction.Invoke(services.BuildServiceProvider(), builder.Services);
