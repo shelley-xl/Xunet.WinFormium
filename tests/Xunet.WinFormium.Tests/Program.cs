@@ -1,9 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
-using Xunet.WinFormium;
-using Xunet.WinFormium.Core;
-using Xunet.WinFormium.Tests;
-using Xunet.WinFormium.Tests.Models;
-using SqlSugar;
+using System.Reflection;
 
 var builder = WinFormiumApplication.CreateBuilder();
 
@@ -28,7 +23,7 @@ builder.Services.AddWinFormium<MainForm>(options =>
     };
 });
 
-builder.Services.AddWebApi((provider, services) =>
+builder.Services.AddWebApi(Assembly.GetExecutingAssembly(), (provider, services) =>
 {
     var db = provider.GetRequiredService<ISqlSugarClient>();
 

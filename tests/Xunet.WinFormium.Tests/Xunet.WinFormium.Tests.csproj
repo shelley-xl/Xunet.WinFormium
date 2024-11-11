@@ -25,12 +25,19 @@
 		<ProjectReference Include="..\..\src\Xunet.WinFormium.csproj" />
 	</ItemGroup>
 
-
-
 	<ItemGroup>
 		<None Update="appsettings.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Using Include="Microsoft.Extensions.DependencyInjection" />
+		<Using Include="Xunet.WinFormium" />
+		<Using Include="Xunet.WinFormium.Core" />
+		<Using Include="Xunet.WinFormium.Tests" />
+		<Using Include="Xunet.WinFormium.Tests.Models" />
+		<Using Include="SqlSugar" />
 	</ItemGroup>
 
 </Project>
