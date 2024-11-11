@@ -1,3 +1,9 @@
+## [1.0.16](https://github.com/shelley-xl/Xunet.WinFormium/commit/67c12933c958cab27e963a5ce94859625860902b) (2024-11-11)
+
+### Bug Fixes
+
+- 修复WebApi接口文档读取问题
+
 ## [1.0.15](https://github.com/shelley-xl/Xunet.WinFormium/commit/b687af80c62d59b233d4a5314d8a0f5f2ad24a3e) (2024-11-11)
 
 ### Bug Fixes
