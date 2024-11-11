@@ -151,8 +151,10 @@ public static class WinFormiumApplicationBuilderExtensions
                 Description = "欢迎使用 API 接口服务",
                 Version = $"v{assembly.GetName().Version}"
             });
-            x.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"), true);
-            x.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{assembly.GetName().Name}.xml"), true);
+            var xmlPath1 = Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
+            var xmlPath2 = Path.Combine(AppContext.BaseDirectory, $"{assembly.GetName().Name}.xml");
+            if (File.Exists(xmlPath1)) x.IncludeXmlComments(xmlPath1, true);
+            if (File.Exists(xmlPath2)) x.IncludeXmlComments(xmlPath2, true);
         });
 
         setupAction.Invoke(services.BuildServiceProvider(), builder.Services);
