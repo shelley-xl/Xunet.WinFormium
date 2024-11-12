@@ -5,33 +5,47 @@ using Xunet.WinFormium.Tests.Entities;
 using Xunet.WinFormium.Tests.Models;
 
 /// <summary>
-/// MainForm
+/// 主窗体
 /// </summary>
 public class MainForm : BaseForm
 {
     /// <summary>
-    /// BaseText
+    /// 标题
     /// </summary>
     protected override string BaseText => $"测试 - {Version}";
 
     /// <summary>
-    /// BaseClientSize
+    /// 窗体大小
     /// </summary>
     protected override Size BaseClientSize => new(600, 400);
 
     /// <summary>
-    /// BaseDoWorkInterval
+    /// 工作周期频率（单位：秒），设置 0 时仅工作一次
     /// </summary>
     protected override int BaseDoWorkInterval => GetConfigValue<int>("DoWorkInterval");
 
     /// <summary>
-    /// DoWorkAsync
+    /// 是否使用默认菜单
+    /// </summary>
+    protected override bool UseDefaultMenu => true;
+
+    /// <summary>
+    /// 是否使用表格数据展示
+    /// </summary>
+    protected override bool UseDatagridView => true;
+
+    /// <summary>
+    /// 执行任务
     /// </summary>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     protected override async Task DoWorkAsync(CancellationToken cancellationToken)
     {
         AppendBox("正在测试，请稍后 ...", ColorTranslator.FromHtml("#1296db"));
+
+        var data = await Db.Queryable<CnBlogsModel>().OrderByDescending(x => x.CreateTime).ToListAsync(cancellationToken);
+
+        AppendDatagridView(data);
 
         var html = await DefaultClient.GetStringAsync("https://www.cnblogs.com/", cancellationToken);
 
@@ -54,7 +68,7 @@ public class MainForm : BaseForm
 
             await Db.Insertable(model).ExecuteCommandAsync(cancellationToken);
 
-            await Task.Delay(new Random().Next(100, 500), cancellationToken);
+            Thread.Sleep(500);
         }
 
         using var request_wb = new Request<WeiboEntity>
@@ -73,13 +87,17 @@ public class MainForm : BaseForm
 
         await EntitySpider.Build(requests).UseStorage(Db).RunAsync();
 
+        data = await Db.Queryable<CnBlogsModel>().OrderByDescending(x => x.CreateTime).ToListAsync(cancellationToken);
+
+        AppendDatagridView(data);
+
         AppendBox("测试完成！", ColorTranslator.FromHtml("#1296db"));
 
         await Task.CompletedTask;
     }
 
     /// <summary>
-    /// DoExceptionAsync
+    /// 系统异常
     /// </summary>
     /// <param name="ex"></param>
     /// <param name="cancellationToken"></param>
@@ -93,7 +111,7 @@ public class MainForm : BaseForm
     }
 
     /// <summary>
-    /// DoCanceledExceptionAsync
+    /// 任务取消
     /// </summary>
     /// <param name="ex"></param>
     /// <returns></returns>
