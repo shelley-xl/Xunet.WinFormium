@@ -44,6 +44,16 @@ public abstract class BaseForm : Form, IDisposable
     /// </summary>
     Form? HostWindow { get; set; }
 
+    /// <summary>
+    /// NotifyIcon
+    /// </summary>
+    NotifyIcon? notifyIcon;
+
+    /// <summary>
+    /// BoxControl
+    /// </summary>
+    Control.ControlCollection? BoxControl;
+
     #endregion
 
     #region 只读
@@ -105,6 +115,16 @@ public abstract class BaseForm : Form, IDisposable
     /// 工作定时Cron表达式，优先级大于BaseDoWorkInterval
     /// </summary>
     protected virtual string BaseDoWorkCron { get; } = string.Empty;
+
+    /// <summary>
+    /// 是否使用默认菜单
+    /// </summary>
+    protected virtual bool UseDefaultMenu { get; } = false;
+
+    /// <summary>
+    /// 是否使用表格数据展示
+    /// </summary>
+    protected virtual bool UseDatagridView { get; } = false;
 
     #endregion   
 
@@ -184,10 +204,286 @@ public abstract class BaseForm : Form, IDisposable
     /// </summary>
     protected BaseForm()
     {
-        InitializeComponent();
-        InitializeControl();
-
         HostWindow = this;
+
+        InitializeComponent();
+
+        if (UseDefaultMenu)
+        {
+            InitializeDefaultMenu();
+        }
+
+        if (UseDatagridView)
+        {
+            InitializeDatagridView();
+        }
+
+        InitializeControl();
+    }
+
+    #endregion
+
+    #region 初始化默认菜单
+
+    /// <summary>
+    /// 初始化默认菜单
+    /// </summary>
+    protected virtual void InitializeDefaultMenu()
+    {
+        if (HostWindow == null || HostWindow.IsDisposed) return;
+
+        InvokeOnUIThread(() =>
+        {
+            // 菜单
+            var menu = new MenuStrip
+            {
+                Name = "Menu",
+            };
+
+            // 一级
+            var tsmi_fun = new ToolStripMenuItem
+            {
+                Text = "功能"
+            };
+
+            var tsmi_op = new ToolStripMenuItem
+            {
+                Text = "操作"
+            };
+
+            var tsmi_ab = new ToolStripMenuItem
+            {
+                Text = "关于"
+            };
+
+            // 二级
+            var tsmi_exc = new ToolStripMenuItem
+            {
+                Name = "Execute",
+                Text = "运行",
+                Enabled = true
+            };
+
+            var tsmi_can = new ToolStripMenuItem
+            {
+                Name = "Cancel",
+                Text = "取消",
+                Enabled = false
+            };
+
+            var tsmi_export = new ToolStripMenuItem
+            {
+                Text = "导出日志"
+            };
+
+            var tsmi_clear = new ToolStripMenuItem
+            {
+                Text = "清空日志"
+            };
+
+            var tsmi_close = new ToolStripMenuItem
+            {
+                Text = "关闭软件"
+            };
+
+            var tsmi_about = new ToolStripMenuItem
+            {
+                Text = "关于软件"
+            };
+
+            // 事件
+            tsmi_exc.Click += (sender, e) =>
+            {
+                tsmi_exc.Enabled = false;
+                Task.Run(DoWork);
+            };
+
+            tsmi_can.Click += (sender, e) =>
+            {
+                tsmi_can.Enabled = false;
+                TokenSource.Cancel();
+                TokenSource = new CancellationTokenSource();
+            };
+
+            tsmi_export.Click += (sender, e) =>
+            {
+                var sfd = new SaveFileDialog
+                {
+                    // 设置保存文件对话框的标题
+                    Title = "请选择要保存的文件路径",
+                    // 初始化保存目录，默认exe文件目录
+                    InitialDirectory = Application.StartupPath,
+                    // 设置保存文件的类型
+                    Filter = "日志文件|*.log",
+                    // 设置默认文件名
+                    FileName = $"console_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}.log"
+                };
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    if (BoxControl?.Find("Box", false).FirstOrDefault() is RichTextBox box)
+                    {
+                        // 获得保存文件的路径
+                        string filePath = sfd.FileName;
+                        // 保存
+                        using var writer = new StreamWriter(filePath);
+                        writer.Write(box.Text);
+                        writer.Flush();
+                        MessageBox.Show("导出成功", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+            };
+
+            tsmi_clear.Click += (sender, e) =>
+            {
+                if (BoxControl?.Find("Box", false).FirstOrDefault() is RichTextBox box)
+                {
+                    box.Clear();
+                    MessageBox.Show("清空成功", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            };
+
+            tsmi_close.Click += (sender, e) =>
+            {
+                Environment.Exit(0);
+            };
+
+            tsmi_about.Click += (sender, e) =>
+            {
+                MessageBox.Show($"当前版本：{Version}", "关于软件", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            };
+
+            // 绑定
+            tsmi_fun.DropDownItems.AddRange(new[]
+            {
+                tsmi_exc,
+                tsmi_can
+            });
+
+            tsmi_op.DropDownItems.AddRange(new[]
+            {
+                tsmi_export,
+                tsmi_clear,
+                tsmi_close
+            });
+
+            tsmi_ab.DropDownItems.AddRange(new[]
+            {
+                tsmi_about
+            });
+
+            menu.Items.AddRange(new[]
+            {
+                tsmi_fun,
+                tsmi_op,
+                tsmi_ab,
+            });
+
+            // 托盘
+            var tsmi_main = new ToolStripMenuItem
+            {
+                Text = "主窗体"
+            };
+
+            var tsmi_about_1 = new ToolStripMenuItem
+            {
+                Text = "关于软件"
+            };
+
+            var tsmi_close_1 = new ToolStripMenuItem
+            {
+                Text = "关闭软件"
+            };
+
+            tsmi_main.Click += (sender, e) =>
+            {
+                Show();
+                Activate();
+            };
+
+            tsmi_about_1.Click += (sender, e) =>
+            {
+                MessageBox.Show($"当前版本：{Version}\r\n\r\n开发作者：徐来", "关于软件", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            };
+
+            tsmi_close_1.Click += (sender, e) =>
+            {
+                Environment.Exit(0);
+            };
+
+            var cms = new ContextMenuStrip
+            {
+                Name = "ContextMenu"
+            };
+
+            cms.Items.Add(tsmi_main);
+            cms.Items.Add(new ToolStripSeparator());
+            cms.Items.AddRange(new[]
+            {
+                tsmi_about_1,
+                tsmi_close_1
+            });
+
+            notifyIcon = new NotifyIcon
+            {
+                Icon = Properties.Resources.favicon,
+                Visible = true,
+                Text = Text,
+                ContextMenuStrip = cms
+            };
+
+            notifyIcon.MouseClick += (sender, e) =>
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    Show();
+                    Activate();
+                }
+            };
+
+            HostWindow.Controls.Add(menu);
+        });
+    }
+    #endregion
+
+    #region 初始化表格
+
+    /// <summary>
+    /// 初始化表格
+    /// </summary>
+    protected virtual void InitializeDatagridView()
+    {
+        if (HostWindow == null || HostWindow.IsDisposed) return;
+
+        InvokeOnUIThread(() =>
+        {
+            var offset = 0;
+            if (HostWindow.Controls.Find("Menu", false).FirstOrDefault() is MenuStrip Menu)
+            {
+                offset = Menu.Height;
+            }
+            var Tab = new TabControl
+            {
+                Name = "Tab",
+                SelectedIndex = 1,
+                Anchor = AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom | AnchorStyles.Left,
+                Width = HostWindow.Width,
+                Height = HostWindow.ClientRectangle.Height - offset,
+                Location = new Point(0, offset),
+            };
+            var TabPageHome = new TabPage
+            {
+                Name = "TabPageHome",
+                Text = "首页",
+            };
+            var TabPageBox = new TabPage
+            {
+                Name = "TabPageBox",
+                Text = "日志",
+            };
+            Tab.TabPages.Add(TabPageHome);
+            Tab.TabPages.Add(TabPageBox);
+            HostWindow.Controls.Add(Tab);
+        });
     }
 
     #endregion
@@ -208,12 +504,33 @@ public abstract class BaseForm : Form, IDisposable
 
     readonly static AsyncSemaphore _async = new();
 
+    void IsRuning(bool enabled)
+    {
+        if (HostWindow == null || HostWindow.IsDisposed) return;
+
+        InvokeOnUIThread(() =>
+        {
+            if (HostWindow.Controls.Find("Menu", false).FirstOrDefault() is MenuStrip menu)
+            {
+                if (menu.Items.Find("Execute", true).FirstOrDefault() is ToolStripMenuItem tsmi_exc)
+                {
+                    tsmi_exc.Enabled = !enabled;
+                }
+                if (menu.Items.Find("Cancel", true).FirstOrDefault() is ToolStripMenuItem tsmi_can)
+                {
+                    tsmi_can.Enabled = enabled;
+                }
+            }
+        });
+    }
+
     async void DoWork()
     {
         using (await _async.WaitAsync())
         {
             try
             {
+                IsRuning(true);
                 await DoWorkAsync(TokenSource.Token);
             }
             catch (OperationCanceledException ex)
@@ -223,6 +540,10 @@ public abstract class BaseForm : Form, IDisposable
             catch (Exception ex)
             {
                 await DoExceptionAsync(ex, TokenSource.Token);
+            }
+            finally
+            {
+                IsRuning(false);
             }
         }
     }
@@ -444,26 +765,39 @@ public abstract class BaseForm : Form, IDisposable
 
         InvokeOnUIThread(() =>
         {
-            if (HostWindow.Controls.Find("Box", false).FirstOrDefault() is not RichTextBox Box)
+            var offset = 0;
+            if (HostWindow.Controls.Find("Menu", false).FirstOrDefault() is MenuStrip Menu)
             {
-                var offset = 0;
-                if (HostWindow.Controls.Find("Menu", false).FirstOrDefault() is MenuStrip Menu)
+                offset = Menu.Height;
+            }
+            var width = HostWindow.Width;
+            var height = HostWindow.ClientRectangle.Height - offset;
+            var location = new Point(0, offset);
+            BoxControl = HostWindow.Controls;
+            if (HostWindow.Controls.Find("Tab", false).FirstOrDefault() is TabControl Tab)
+            {
+                if (Tab.TabPages["TabPageBox"] is TabPage TabPageBox)
                 {
-                    offset = Menu.Height;
+                    BoxControl = TabPageBox.Controls;
+                    width = TabPageBox.Width;
+                    height = TabPageBox.Height;
+                    location = new Point(0, 0);
                 }
-                var titleHeight = HostWindow.Height - HostWindow.ClientRectangle.Height;
+            }
+            if (BoxControl.Find("Box", false).FirstOrDefault() is not RichTextBox Box)
+            {
                 Box = new RichTextBox
                 {
                     Name = "Box",
                     Anchor = AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom | AnchorStyles.Left,
-                    Width = HostWindow.Width,
-                    Height = HostWindow.Height - offset - titleHeight,
+                    Width = width,
+                    Height = height,
                     ReadOnly = true,
                     BackColor = Color.White,
                     BorderStyle = BorderStyle.None,
-                    Location = new Point(0, offset),
+                    Location = location,
                 };
-                HostWindow.Controls.Add(Box);
+                BoxControl.Add(Box);
             }
             Box.SelectionStart = Box.TextLength;
             Box.SelectionLength = 0;
@@ -472,6 +806,76 @@ public abstract class BaseForm : Form, IDisposable
             Box.SelectionColor = Box.ForeColor;
             Box.ScrollToCaret();
             Box.Focus();
+        });
+    }
+
+    #endregion
+
+    #region 表格数据显示
+
+    /// <summary>
+    /// 表格数据显示
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="list"></param>
+    /// <param name="title"></param>
+    protected void AppendDatagridView<T>(List<T> list, string? title = null)
+    {
+        if (HostWindow == null || HostWindow.IsDisposed) return;
+
+        InvokeOnUIThread(() =>
+        {
+            if (HostWindow.Controls.Find("Tab", false).FirstOrDefault() is TabControl Tab)
+            {
+                if (Tab.TabPages["TabPageHome"] is TabPage TabPageHome)
+                {
+                    title ??= $"总记录数：{list.Count}";
+                    var offset = 5;
+                    if (TabPageHome.Controls.Find("DatagridViewTitle", false).FirstOrDefault() is not Label DatagridViewTitle)
+                    {
+                        DatagridViewTitle = new Label
+                        {
+                            Name = "DatagridViewTitle",
+                            Text = title,
+                            Location = new Point(0, offset),
+                        };
+                        TabPageHome.Controls.Add(DatagridViewTitle);
+                        offset += DatagridViewTitle.Height;
+                    }
+                    DatagridViewTitle.Text = title;
+                    if (TabPageHome.Controls.Find("DatagridView", false).FirstOrDefault() is not DataGridView DataGridView)
+                    {
+                        DataGridView = new DataGridView
+                        {
+                            Name = "DatagridView",
+                            Anchor = AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom | AnchorStyles.Left,
+                            Width = TabPageHome.Width,
+                            Height = TabPageHome.Height - offset,
+                            Location = new Point(0, offset),
+                            BackgroundColor = Color.White,
+                            AllowUserToAddRows = false,
+                            AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                        };
+                        DataGridView.RowPostPaint += (object? sender, DataGridViewRowPostPaintEventArgs e) =>
+                        {
+                            Rectangle rectangle = new(e.RowBounds.Location.X, e.RowBounds.Location.Y, DataGridView.RowHeadersWidth - 4, e.RowBounds.Height);
+                            TextRenderer.DrawText(e.Graphics, (e.RowIndex + 1).ToString(), DataGridView.RowHeadersDefaultCellStyle.Font, rectangle, DataGridView.RowHeadersDefaultCellStyle.ForeColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Right);
+                        };
+                        foreach (var property in typeof(T).GetProperties())
+                        {
+                            var headerText = property.GetCustomAttribute<DescriptionAttribute>()?.Description ?? property.Name;
+                            DataGridView.Columns.Add(new DataGridViewColumn
+                            {
+                                HeaderText = headerText,
+                                DataPropertyName = property.Name,
+                                CellTemplate = new DataGridViewTextBoxCell(),
+                            });
+                        }
+                        TabPageHome.Controls.Add(DataGridView);
+                    }
+                    DataGridView.DataSource = list;
+                }
+            }
         });
     }
 
