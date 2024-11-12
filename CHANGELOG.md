@@ -1,3 +1,15 @@
+## [1.0.17](https://github.com/shelley-xl/Xunet.WinFormium/commit/00912a490ff9fd03446e7178bc7558d7ac254619) (2024-11-12)
+
+### Features
+
+- 新增默认菜单功能，支持任务取消、执行
+- 新增数据表格展示，
+- 新增Tab标签页
+
+### Bug Fixes
+
+- 修复已知问题
+
 ## [1.0.16](https://github.com/shelley-xl/Xunet.WinFormium/commit/67c12933c958cab27e963a5ce94859625860902b) (2024-11-11)
 
 ### Bug Fixes
