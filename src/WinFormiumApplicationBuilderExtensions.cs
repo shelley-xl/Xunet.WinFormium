@@ -75,16 +75,16 @@ public static class WinFormiumApplicationBuilderExtensions
 
         services.AddSingleton(Configuration);
 
-        services.AddHttpClient("default", client =>
+        if (startupOptions != null && startupOptions.Headers != null)
         {
-            if (startupOptions != null && startupOptions.Headers != null)
+            services.AddHttpClient("default", client =>
             {
                 foreach (var item in startupOptions.Headers)
                 {
                     client.DefaultRequestHeaders.Add(item.Key, item.Value);
                 }
-            }
-        });
+            });
+        }
 
         if (startupOptions != null && startupOptions.Storage != null)
         {

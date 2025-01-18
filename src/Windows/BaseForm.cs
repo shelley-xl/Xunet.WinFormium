@@ -28,11 +28,22 @@ public abstract class BaseForm : Form, IDisposable
     /// <summary>
     /// 多线程票据
     /// </summary>
-    protected static CancellationTokenSource TokenSource { get; set; }
+    protected static CancellationTokenSource TokenSource { get; set; } = new();
 
     #endregion
 
     #region 私有
+
+    /// <summary>
+    /// 配置
+    /// </summary>
+    static IConfigurationRoot Configuration
+    {
+        get
+        {
+            return DependencyResolver.Current?.GetRequiredService<IConfigurationRoot>() ?? throw new InvalidOperationException("No service for type 'IConfigurationRoot' has been registered.");
+        }
+    }
 
     /// <summary>
     /// HTML文档
@@ -61,17 +72,35 @@ public abstract class BaseForm : Form, IDisposable
     /// <summary>
     /// 版本号
     /// </summary>
-    protected static string Version { get; }
+    protected static string Version
+    {
+        get
+        {
+            return $"v{Assembly.GetEntryAssembly()?.GetName().Version}";
+        }
+    }
 
     /// <summary>
     /// 默认请求客户端
     /// </summary>
-    protected static HttpClient DefaultClient { get; }
+    protected static HttpClient DefaultClient
+    {
+        get
+        {
+            return DependencyResolver.Current?.GetRequiredService<IHttpClientFactory>()?.CreateClient("default") ?? throw new InvalidOperationException("No headers for type 'StartupOptions.RequestHeaders' has been initialized.");
+        }
+    }
 
     /// <summary>
     /// 数据库访问
     /// </summary>
-    protected static ISqlSugarClient Db { get; }
+    protected static ISqlSugarClient Db
+    {
+        get
+        {
+            return DependencyResolver.Current?.GetRequiredService<ISqlSugarClient>() ?? throw new InvalidOperationException("No storage for type 'StartupOptions.SqliteStorage' has been initialized.");
+        }
+    }
 
     #endregion
 
@@ -184,20 +213,6 @@ public abstract class BaseForm : Form, IDisposable
     #endregion
 
     #region 构造函数
-
-    /// <summary>
-    /// 配置
-    /// </summary>
-    static IConfigurationRoot Configuration { get; }
-
-    static BaseForm()
-    {
-        TokenSource = new();
-        Version = $"v{Assembly.GetEntryAssembly()?.GetName().Version}";
-        Configuration = DependencyResolver.Current?.GetRequiredService<IConfigurationRoot>() ?? throw new InvalidOperationException("No service for type 'IConfigurationRoot' has been registered.");
-        DefaultClient = DependencyResolver.Current?.GetRequiredService<IHttpClientFactory>()?.CreateClient("default") ?? throw new InvalidOperationException("No service for type 'IHttpClientFactory' has been registered.");
-        Db = DependencyResolver.Current?.GetRequiredService<ISqlSugarClient>() ?? throw new InvalidOperationException("No service for type 'ISqlSugarClient' has been registered.");
-    }
 
     /// <summary>
     /// 构造函数
