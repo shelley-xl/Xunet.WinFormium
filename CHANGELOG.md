@@ -1,3 +1,10 @@
+## [1.0.19](https://github.com/shelley-xl/Xunet.WinFormium/commit/4487bdbd6ede5efe8a9201d5d0f7640390511974) (2025-04-27)
+
+### Features
+
+- Nuget包引用升级
+- 新增.NET 9.0 支持
+
 ## [1.0.18](https://github.com/shelley-xl/Xunet.WinFormium/commit/b501e9770fb7170f59beea4a5442b993f58a39aa) (2025-01-18)
 
 ### Bug Fixes
