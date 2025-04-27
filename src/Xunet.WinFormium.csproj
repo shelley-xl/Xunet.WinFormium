@@ -42,14 +42,20 @@
 		<PackageReference Include="Jint" Version="4.2.2" />
 		<PackageReference Include="HtmlAgilityPack" Version="1.12.1" />
 		<PackageReference Include="MiniProfiler.AspNetCore" Version="4.5.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.15" Condition="'$(TargetFramework)'=='net8.0-windows'" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.4" Condition="'$(TargetFramework)'=='net9.0-windows'" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
 		<PackageReference Include="SqlSugarCore" Version="5.1.4.189" />
 		<PackageReference Include="SuperDriver" Version="5.0.3" />
 		<PackageReference Include="SuperSpider" Version="1.0.8" />
 		<PackageReference Include="Xunet" Version="1.0.23" />
 		<PackageReference Include="Yitter.IdGenerator" Version="1.0.14" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)'=='net8.0-windows'">
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.15" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)'=='net9.0-windows'">
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.4" />
 	</ItemGroup>
 
 	<ItemGroup>
