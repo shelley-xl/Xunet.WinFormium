@@ -4,6 +4,7 @@
 
 - Nuget包引用升级
 - 新增.NET 9.0 支持
+- 代码优化
 
 ## [1.0.18](https://github.com/shelley-xl/Xunet.WinFormium/commit/b501e9770fb7170f59beea4a5442b993f58a39aa) (2025-01-18)
 
