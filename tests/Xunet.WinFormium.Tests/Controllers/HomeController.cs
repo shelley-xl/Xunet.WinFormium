@@ -5,6 +5,7 @@ using Xunet.WinFormium.Controllers;
 using Xunet.WinFormium.Tests.Models;
 using SqlSugar;
 using Xunet.WinFormium.Tests.Entities;
+using Microsoft.AspNetCore.Http;
 
 /// <summary>
 /// 首页
@@ -20,7 +21,7 @@ public class HomeController(ISqlSugarClient Db) : BaseController
     /// <param name="size"></param>
     /// <returns></returns>
     [HttpGet("csdn/list/page")]
-    public async Task<IActionResult> CsdnListPage(int page = 1, int size = 20)
+    public async Task<IResult> CsdnListPage(int page = 1, int size = 20)
     {
         RefAsync<int> totalNumber = new(0);
 
@@ -36,7 +37,7 @@ public class HomeController(ISqlSugarClient Db) : BaseController
     /// <param name="size"></param>
     /// <returns></returns>
     [HttpGet("weibo/list/page")]
-    public async Task<IActionResult> WeiboListPage(int page = 1, int size = 20)
+    public async Task<IResult> WeiboListPage(int page = 1, int size = 20)
     {
         RefAsync<int> totalNumber = new(0);
 
