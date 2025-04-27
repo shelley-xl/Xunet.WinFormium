@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
-		<TargetFrameworks Condition="'$(LibraryFrameworks)'==''">net8.0-windows</TargetFrameworks>
+		<TargetFrameworks Condition="'$(LibraryFrameworks)'==''">net8.0-windows;net9.0-windows;</TargetFrameworks>
 		<TargetFrameworks Condition="'$(LibraryFrameworks)'!=''">$(LibraryFrameworks)</TargetFrameworks>
 		<EnableWindowsTargeting>true</EnableWindowsTargeting>
 		<Nullable>enable</Nullable>
@@ -13,7 +13,7 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
 		<!-- version numbers will be updated by build -->
-		<Version>1.0.18</Version>
+		<Version>1.0.19</Version>
 		<TotalDays>$([System.DateTime]::Now.Date.Subtract($([System.DateTime]::Parse($([System.String]::Format("{0}-8-5",2024))))).TotalDays)</TotalDays>
 		<AssemblyVersion>$(Version).$(TotalDays)</AssemblyVersion>
 		<FileVersion>$(Version).$(TotalDays)</FileVersion>
@@ -39,14 +39,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Jint" Version="4.1.0" />
-		<PackageReference Include="HtmlAgilityPack" Version="1.11.71" />
-		<PackageReference Include="MiniProfiler.AspNetCore" Version="4.3.8" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.10" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
-		<PackageReference Include="SqlSugarCore" Version="5.1.4.170" />
-		<PackageReference Include="SuperDriver" Version="4.0.8" />
-		<PackageReference Include="SuperSpider" Version="1.0.6" />
+		<PackageReference Include="Jint" Version="4.2.2" />
+		<PackageReference Include="HtmlAgilityPack" Version="1.12.1" />
+		<PackageReference Include="MiniProfiler.AspNetCore" Version="4.5.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.15" Condition="'$(TargetFramework)'=='net8.0-windows'" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.4" Condition="'$(TargetFramework)'=='net9.0-windows'" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
+		<PackageReference Include="SqlSugarCore" Version="5.1.4.189" />
+		<PackageReference Include="SuperDriver" Version="5.0.3" />
+		<PackageReference Include="SuperSpider" Version="1.0.8" />
 		<PackageReference Include="Xunet" Version="1.0.23" />
 		<PackageReference Include="Yitter.IdGenerator" Version="1.0.14" />
 	</ItemGroup>
