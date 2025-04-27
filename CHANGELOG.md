@@ -1,3 +1,11 @@
+## [1.0.20](https://github.com/shelley-xl/Xunet.WinFormium/commit/1a1e137c3cb919a1146412e71b9ab20ed0a9ca72) (2025-04-27)
+
+### Features
+
+- 引入System.Text.Json，替换Newtonsoft.Json
+- 新增健康检查：/health/check
+- 代码优化
+
 ## [1.0.19](https://github.com/shelley-xl/Xunet.WinFormium/commit/4487bdbd6ede5efe8a9201d5d0f7640390511974) (2025-04-27)
 
 ### Features
