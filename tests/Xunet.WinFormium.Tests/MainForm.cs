@@ -1,6 +1,7 @@
 ﻿namespace Xunet.WinFormium.Tests;
 
 using SuperSpider;
+using Xunet.WinFormium.Windows;
 using Xunet.WinFormium.Tests.Entities;
 using Xunet.WinFormium.Tests.Models;
 
