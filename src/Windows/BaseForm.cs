@@ -3,7 +3,7 @@
 // COPYRIGHTS (C) 徐来 ALL RIGHTS RESERVED.
 // GITHUB: https://github.com/shelley-xl/Xunet.WinFormium
 
-namespace Xunet.WinFormium;
+namespace Xunet.WinFormium.Windows;
 
 using System.ComponentModel;
 using System.Reflection;
@@ -368,30 +368,30 @@ public abstract class BaseForm : Form, IDisposable
             };
 
             // 绑定
-            tsmi_fun.DropDownItems.AddRange(new[]
-            {
+            tsmi_fun.DropDownItems.AddRange(
+            [
                 tsmi_exc,
                 tsmi_can
-            });
+            ]);
 
-            tsmi_op.DropDownItems.AddRange(new[]
-            {
+            tsmi_op.DropDownItems.AddRange(
+            [
                 tsmi_export,
                 tsmi_clear,
                 tsmi_close
-            });
+            ]);
 
-            tsmi_ab.DropDownItems.AddRange(new[]
-            {
+            tsmi_ab.DropDownItems.AddRange(
+            [
                 tsmi_about
-            });
+            ]);
 
-            menu.Items.AddRange(new[]
-            {
+            menu.Items.AddRange(
+            [
                 tsmi_fun,
                 tsmi_op,
                 tsmi_ab,
-            });
+            ]);
 
             // 托盘
             var tsmi_main = new ToolStripMenuItem
@@ -432,11 +432,11 @@ public abstract class BaseForm : Form, IDisposable
 
             cms.Items.Add(tsmi_main);
             cms.Items.Add(new ToolStripSeparator());
-            cms.Items.AddRange(new[]
-            {
+            cms.Items.AddRange(
+            [
                 tsmi_about_1,
                 tsmi_close_1
-            });
+            ]);
 
             notifyIcon = new NotifyIcon
             {
@@ -1183,7 +1183,7 @@ public abstract class BaseForm : Form, IDisposable
     /// <returns></returns>
     protected static string FindHiddenText(object? element)
     {
-        return (element as HtmlNode)?.GetAttributeValue("textContent", null) ?? string.Empty;
+        return (element as HtmlNode)?.GetAttributeValue("textContent", "") ?? string.Empty;
     }
 
     #endregion
@@ -1198,7 +1198,7 @@ public abstract class BaseForm : Form, IDisposable
     /// <returns></returns>
     protected static string FindAttributeValue(object? element, string attribute)
     {
-        return (element as HtmlNode)?.GetAttributeValue(attribute, null) ?? string.Empty;
+        return (element as HtmlNode)?.GetAttributeValue(attribute, "") ?? string.Empty;
     }
 
     #endregion
