@@ -5,14 +5,14 @@
 
 namespace Xunet.WinFormium.Controllers;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Xunet.WinFormium.Core;
 using Xunet.WinFormium.Dtos;
 
 /// <summary>
 /// 控制器基类
 /// </summary>
-public class BaseController : Controller
+public class BaseController : ControllerBase
 {
     /// <summary>
     /// 公共查询返回
@@ -23,28 +23,26 @@ public class BaseController : Controller
     /// <param name="format"></param>
     /// <returns></returns>
     [NonAction]
-    public virtual IActionResult XunetResult<TValue>(TValue value, int? total = null, string format = "yyyy-MM-dd HH:mm:ss") where TValue : notnull
+    public virtual IResult XunetResult<TValue>(TValue value, int? total = null, string format = "yyyy-MM-dd HH:mm:ss") where TValue : notnull
     {
         if (total.HasValue)
         {
-            return new JsonResult(new PageResultDto<TValue>
+            return Results.Ok(new PageResultDto<TValue>
             {
                 Data = value,
                 Total = total.Value,
                 Code = ResultCode.Success,
                 Message = "成功",
-
-            }, JsonSettings.SerializerSettings(format));
+            });
         }
         else
         {
-            return new JsonResult(new OperateResultDto<TValue>
+            return Results.Ok(new OperateResultDto<TValue>
             {
                 Data = value,
                 Code = ResultCode.Success,
                 Message = "成功",
-
-            }, JsonSettings.SerializerSettings(format));
+            });
         }
     }
 
@@ -53,9 +51,9 @@ public class BaseController : Controller
     /// </summary>
     /// <returns></returns>
     [NonAction]
-    public virtual IActionResult XunetResult()
+    public virtual IResult XunetResult()
     {
-        return new JsonResult(new OperateResultDto
+        return Results.Ok(new OperateResultDto
         {
             Code = ResultCode.Success,
             Message = "成功",

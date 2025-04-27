@@ -16,6 +16,12 @@ using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Xunet.WinFormium.Dtos;
 using Xunet.WinFormium.Windows;
+using System.Text.Encodings.Web;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+using System.Text.Unicode;
+using Xunet.WinFormium.Http.Json;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 /// <summary>
 /// WinFormiumApplicationBuilder扩展
@@ -142,7 +148,23 @@ public static class WinFormiumApplicationBuilderExtensions
     {
         var builder = WebApplication.CreateBuilder();
 
-        builder.Services.AddControllers().AddNewtonsoftJson(JsonSettings.NewtonsoftJsonOptions());
+        builder.Services.ConfigureHttpJsonOptions(options =>
+        {
+            // 不区分大小写
+            options.SerializerOptions.PropertyNameCaseInsensitive = true;
+            // 忽略循环引用
+            options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            // 使用小驼峰命名
+            options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            // 不使用 Unicode 编码
+            options.SerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
+            // 使用缩进格式
+            options.SerializerOptions.WriteIndented = true;
+            // 自定义时间格式
+            options.SerializerOptions.Converters.Add(new DateTimeJsonConverter());
+        });
+        builder.Services.AddHealthChecks();
+        builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(x =>
         {
@@ -162,6 +184,18 @@ public static class WinFormiumApplicationBuilderExtensions
 
         var app = builder.Build();
 
+        app.UseHealthChecks("/health/check", new HealthCheckOptions
+        {
+            Predicate = _ => true,
+            ResponseWriter = (context, report) =>
+            {
+                return context.Response.WriteAsJsonAsync(new OperateResultDto
+                {
+                    Code = ResultCode.Success,
+                    Message = report.Status.ToString(),
+                });
+            }
+        });
         app.MapControllers();
         app.UseSwagger();
         app.UseSwaggerUI(x =>
