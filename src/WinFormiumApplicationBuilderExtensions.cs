@@ -15,6 +15,7 @@ using Microsoft.OpenApi.Models;
 using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Xunet.WinFormium.Dtos;
+using Xunet.WinFormium.Windows;
 
 /// <summary>
 /// WinFormiumApplicationBuilder扩展
