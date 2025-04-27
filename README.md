@@ -2,7 +2,7 @@
 
 A Lightweight WinForm Application Framework For .NET
 
-Support .NET 8.0
+Support .NET 8.0/9.0
 
 [![Nuget](https://img.shields.io/nuget/v/Xunet.WinFormium.svg?style=flat-square)](https://www.nuget.org/packages/Xunet.WinFormium)
 [![Downloads](https://img.shields.io/nuget/dt/Xunet.WinFormium.svg?style=flat-square)](https://www.nuget.org/stats/packages/Xunet.WinFormium?groupby=Version)
