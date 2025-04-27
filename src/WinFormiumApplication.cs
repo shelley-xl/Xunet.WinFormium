@@ -52,7 +52,7 @@ public class WinFormiumApplication
     }
 
     /// <summary>
-    /// Run
+    /// 运行
     /// </summary>
     public void Run()
     {
