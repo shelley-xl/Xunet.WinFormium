@@ -1,3 +1,11 @@
+## [1.0.21](https://github.com/shelley-xl/Xunet.WinFormium/commit/12b32e418cb3e8816f7161b98b0e3962ee635e18) (2025-05-08)
+
+### Features
+
+- 包升级
+- 修复已知问题
+- 新增窗体状态属性
+
 ## [1.0.20](https://github.com/shelley-xl/Xunet.WinFormium/commit/1a1e137c3cb919a1146412e71b9ab20ed0a9ca72) (2025-04-27)
 
 ### Features
