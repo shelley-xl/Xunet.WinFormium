@@ -116,6 +116,11 @@ public abstract class BaseForm : Form, IDisposable
     #region 重写
 
     /// <summary>
+    /// 窗体状态
+    /// </summary>
+    protected virtual FormWindowState BaseWindowState { get; } = FormWindowState.Normal;
+
+    /// <summary>
     /// 是否启用最大化控件
     /// </summary>
     protected virtual bool BaseMaximizeBox { get; } = true;
@@ -201,6 +206,7 @@ public abstract class BaseForm : Form, IDisposable
         MaximizeBox = BaseMaximizeBox;
         BackColor = BaseBackColor;
         FormBorderStyle = BaseFormBorderStyle;
+        WindowState = BaseWindowState;
         ClientSize = BaseClientSize;
         MinimumSize = BaseClientSize;
         FormClosing += Form_FormClosing;
