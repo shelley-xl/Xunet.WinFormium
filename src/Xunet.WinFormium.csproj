@@ -13,7 +13,7 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
 		<!-- version numbers will be updated by build -->
-		<Version>1.0.21</Version>
+		<Version>1.0.22</Version>
 		<TotalDays>$([System.DateTime]::Now.Date.Subtract($([System.DateTime]::Parse($([System.String]::Format("{0}-8-5",2024))))).TotalDays)</TotalDays>
 		<AssemblyVersion>$(Version).$(TotalDays)</AssemblyVersion>
 		<FileVersion>$(Version).$(TotalDays)</FileVersion>
@@ -21,8 +21,8 @@
 		<Company>徐来</Company>
 		<Title>Xunet.WinFormium</Title>
 		<Product>Xunet.WinFormium</Product>
-		<Description>A Lightweight WinForm Application Framework For .NET</Description>
-		<Summary>A Lightweight WinForm Application Framework For .NET</Summary>
+		<Description>基于.NET Core的轻量级爬虫框架，支持标准的http请求，网页解析，网页自动化，执行js脚本，数据存储等，内置.NET WebApi支持，同时提供通用的Winform组件。</Description>
+		<Summary>.NET轻量级爬虫框架</Summary>
 		<Copyright>Copyright © 徐来 Xulai 2024</Copyright>
 		<RootNamespace>Xunet.WinFormium</RootNamespace>
 		<AssemblyName>Xunet.WinFormium</AssemblyName>
@@ -30,7 +30,7 @@
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/shelley-xl/Xunet.WinFormium</RepositoryUrl>
 		<PackageId>Xunet.WinFormium</PackageId>
-		<PackageTags>tools,helper,winform,effective</PackageTags>
+		<PackageTags>tools,helper,winform,effective,crawler</PackageTags>
 		<PackageIcon>LOGO.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -42,8 +42,8 @@
 		<PackageReference Include="Jint" Version="4.2.2" />
 		<PackageReference Include="HtmlAgilityPack" Version="1.12.1" />
 		<PackageReference Include="MiniProfiler.AspNetCore" Version="4.5.4" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
-		<PackageReference Include="SqlSugarCore" Version="5.1.4.192" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.2" />
+		<PackageReference Include="SqlSugarCore" Version="5.1.4.193" />
 		<PackageReference Include="SuperDriver" Version="5.0.4" />
 		<PackageReference Include="SuperSpider" Version="1.0.8" />
 		<PackageReference Include="Xunet" Version="1.0.23" />
