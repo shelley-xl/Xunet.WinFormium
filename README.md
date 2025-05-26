@@ -1,6 +1,6 @@
 # Xunet.WinFormium
 
-A Lightweight WinForm Application Framework For .NET
+基于.NET Core的轻量级爬虫框架，支持标准的http请求，网页解析，网页自动化，执行js脚本，数据存储等，内置.NET WebApi支持，同时提供通用的Winform组件。
 
 Support .NET 8.0/9.0
 
