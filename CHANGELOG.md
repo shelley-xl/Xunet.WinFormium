@@ -1,3 +1,9 @@
+## [1.0.22](https://github.com/shelley-xl/Xunet.WinFormium/commit/d405a958bd9adc1a0a20f260620a75679d5f774f) (2025-05-26)
+
+### Features
+- 包升级
+- 修改包描述
+
 ## [1.0.21](https://github.com/shelley-xl/Xunet.WinFormium/commit/12b32e418cb3e8816f7161b98b0e3962ee635e18) (2025-05-08)
 
 ### Features
