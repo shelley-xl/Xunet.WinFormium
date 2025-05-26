@@ -22,41 +22,57 @@ PM> Install-Package Xunet.WinFormium
 Program.cs
 
 ```c#
-using Xunet.WinFormium;
-using Xunet.WinFormium.Core;
-using Xunet.WinFormium.Tests;
-using Xunet.WinFormium.Tests.Models;
+using System.Reflection;
 
-var builder = WinFormiumApplication.CreateBuilder();
-
-builder.Services.AddWinFormium<MainForm>(options =>
+internal static class Program
 {
-    options.Headers = new()
+    /// <summary>
+    ///  The main entry point for the application.
+    /// </summary>
+    [STAThread]
+    static void Main()
     {
+        var builder = WinFormiumApplication.CreateBuilder();
+
+        builder.Services.AddWinFormium<MainForm>(options =>
         {
-            HeaderNames.UserAgent,
-            "Mozilla/5.0 (iPhone; CPU iPhone OS 6_1_3 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Mobile/10B329 MicroMessenger/5.0.1"
-        }
-    };
-    options.Storage = new()
-    {
-        DataVersion = "24.8.9.1822",
-        DbName = "Xunet.WinFormium.Tests",
-        EntityTypes = [typeof(CnBlogsModel)]
-    };
-    options.Snowflake = new()
-    {
-        WorkerId = 1
-    };
-});
+            options.Headers = new()
+            {
+                {
+                    HeaderNames.UserAgent,
+                    "Mozilla/5.0 (iPhone; CPU iPhone OS 6_1_3 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Mobile/10B329 MicroMessenger/5.0.1"
+                }
+            };
+            options.Storage = new()
+            {
+                DataVersion = "24.8.9.1822",
+                DbName = "Xunet.WinFormium.Tests",
+                EntityTypes = [typeof(CnBlogsModel)]
+            };
+            options.Snowflake = new()
+            {
+                WorkerId = 1
+            };
+        });
 
-var app = builder.Build();
+        builder.Services.AddWebApi(Assembly.GetExecutingAssembly(), (provider, services) =>
+        {
+            var db = provider.GetRequiredService<ISqlSugarClient>();
 
-app.UseWinFormium();
+            services.AddSingleton(db);
+        });
 
-app.UseSingleApp();
+        var app = builder.Build();
 
-app.Run();
+        app.UseWinFormium();
+
+        app.UseSingleApp();
+
+        app.UseWebApi();
+
+        app.Run();
+    }
+}
 ```
 
 MainForm.cs
@@ -64,19 +80,53 @@ MainForm.cs
 ```c#
 namespace Xunet.WinFormium.Tests;
 
+using SuperSpider;
+using Xunet.WinFormium.Windows;
+using Xunet.WinFormium.Tests.Entities;
 using Xunet.WinFormium.Tests.Models;
 
+/// <summary>
+/// 主窗体
+/// </summary>
 public class MainForm : BaseForm
 {
+    /// <summary>
+    /// 标题
+    /// </summary>
     protected override string BaseText => $"测试 - {Version}";
 
+    /// <summary>
+    /// 窗体大小
+    /// </summary>
     protected override Size BaseClientSize => new(600, 400);
 
+    /// <summary>
+    /// 工作周期频率（单位：秒），设置 0 时仅工作一次
+    /// </summary>
     protected override int BaseDoWorkInterval => GetConfigValue<int>("DoWorkInterval");
 
+    /// <summary>
+    /// 是否使用默认菜单
+    /// </summary>
+    protected override bool UseDefaultMenu => true;
+
+    /// <summary>
+    /// 是否使用表格数据展示
+    /// </summary>
+    protected override bool UseDatagridView => true;
+
+    /// <summary>
+    /// 执行任务
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     protected override async Task DoWorkAsync(CancellationToken cancellationToken)
     {
         AppendBox("正在测试，请稍后 ...", ColorTranslator.FromHtml("#1296db"));
+
+        var data = await Db.Queryable<CnBlogsModel>().OrderByDescending(x => x.CreateTime).ToListAsync(cancellationToken);
+
+        AppendDatagridView(data);
 
         var html = await DefaultClient.GetStringAsync("https://www.cnblogs.com/", cancellationToken);
 
@@ -99,14 +149,40 @@ public class MainForm : BaseForm
 
             await Db.Insertable(model).ExecuteCommandAsync(cancellationToken);
 
-            await Task.Delay(new Random().Next(100, 500), cancellationToken);
+            Thread.Sleep(500);
         }
+
+        using var request_wb = new Request<WeiboEntity>
+        {
+            RequestUri = new Uri("https://s.weibo.com/top/summary?cate=realtimehot"),
+            Headers =
+            {
+                { HeaderNames.Cookie, "SUB=_2AkMRPey0f8NxqwFRmP0QzG7jZIh-zA_EieKnYR1vJRMyHRl-yD9yqhMPtRB6Or3CWw-34jkWWR4Y0x2HL1v5PpcCYaf4" },
+                { HeaderNames.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36" }
+            },
+            FilterConditions = x => x.RankTop.HasValue,
+            DuplicateColumns = x => new { x.Keywords }
+        };
+
+        Request[] requests = [request_wb];
+
+        await EntitySpider.Build(requests).UseStorage(Db).RunAsync();
+
+        data = await Db.Queryable<CnBlogsModel>().OrderByDescending(x => x.CreateTime).ToListAsync(cancellationToken);
+
+        AppendDatagridView(data);
 
         AppendBox("测试完成！", ColorTranslator.FromHtml("#1296db"));
 
         await Task.CompletedTask;
     }
 
+    /// <summary>
+    /// 系统异常
+    /// </summary>
+    /// <param name="ex"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     protected override async Task DoExceptionAsync(Exception ex, CancellationToken cancellationToken)
     {
         AppendBox("系统异常！", Color.Red);
@@ -115,6 +191,11 @@ public class MainForm : BaseForm
         await Task.CompletedTask;
     }
 
+    /// <summary>
+    /// 任务取消
+    /// </summary>
+    /// <param name="ex"></param>
+    /// <returns></returns>
     protected override async Task DoCanceledExceptionAsync(OperationCanceledException ex)
     {
         AppendBox("任务取消！", Color.Red);
@@ -147,11 +228,158 @@ public class CnBlogsModel
 }
 ```
 
+WeiboEntity.cs
+
+```c#
+namespace Xunet.WinFormium.Tests.Entities;
+
+using SuperSpider;
+
+/// <summary>
+/// 微博热搜
+/// </summary>
+[SpiderSchema("weibo", "微博热搜")]
+[SpiderIndex("unique_weibo_Keywords", nameof(Keywords), true, true)]
+[EntitySelector(Expression = "//*[@id=\"pl_top_realtimehot\"]/table/tbody/tr")]
+public class WeiboEntity : SpiderEntity
+{
+    /// <summary>
+    /// 排行
+    /// </summary>
+    [SpiderColumn(ColumnDescription = "排行", IsNullable = true)]
+    [RegexFormatter(Pattern = "[0-9]+")]
+    [ValueSelector(Expression = "//td[1]")]
+    public int? RankTop { get; set; }
+
+    /// <summary>
+    /// 关键词
+    /// </summary>
+    [SpiderColumn(ColumnDescription = "关键词", IsNullable = true)]
+    [ValueSelector(Expression = "//td[2]/a")]
+    public string? Keywords { get; set; }
+
+    /// <summary>
+    /// HotText
+    /// </summary>
+    [SpiderColumn(ColumnDescription = "热度文本", IsNullable = true)]
+    [RegexFormatter(Pattern = "[\u4E00-\u9FA5]+")]
+    [ValueSelector(Expression = "//td[2]/span")]
+    public string? HotText { get; set; }
+
+    /// <summary>
+    /// 热度值
+    /// </summary>
+    [SpiderColumn(ColumnDescription = "热度值", IsNullable = true)]
+    [RegexFormatter(Pattern = "[0-9]+")]
+    [ValueSelector(Expression = "//td[2]/span")]
+    public int? HotValue { get; set; }
+
+    /// <summary>
+    /// 热度标签
+    /// </summary>
+    [SpiderColumn(ColumnDescription = "热度标签", IsNullable = true)]
+    [ValueSelector(Expression = "//td[3]/i")]
+    public string? HotTag { get; set; }
+
+    /// <summary>
+    /// 链接
+    /// </summary>
+    [SpiderColumn(ColumnDescription = "链接", IsNullable = true)]
+    [ValueSelector(Expression = "//td[2]/a/@href")]
+    public string? Url { get; set; }
+}
+```
+
+HomeController.cs
+
+```c#
+namespace Xunet.WinFormium.Tests.Controllers;
+
+using Microsoft.AspNetCore.Mvc;
+using Xunet.WinFormium.Controllers;
+using Xunet.WinFormium.Tests.Models;
+using SqlSugar;
+using Xunet.WinFormium.Tests.Entities;
+using Microsoft.AspNetCore.Http;
+
+/// <summary>
+/// 首页
+/// </summary>
+/// <param name="Db"></param>
+[Route("api/home")]
+public class HomeController(ISqlSugarClient Db) : BaseController
+{
+    /// <summary>
+    /// 获取csdn博客列表
+    /// </summary>
+    /// <param name="page"></param>
+    /// <param name="size"></param>
+    /// <returns></returns>
+    [HttpGet("csdn/list/page")]
+    public async Task<IResult> CsdnListPage(int page = 1, int size = 20)
+    {
+        RefAsync<int> totalNumber = new(0);
+
+        var list = await Db.Queryable<CnBlogsModel>().ToPageListAsync(page, size, totalNumber);
+
+        return XunetResult(list, totalNumber);
+    }
+
+    /// <summary>
+    /// 获取微博热搜列表
+    /// </summary>
+    /// <param name="page"></param>
+    /// <param name="size"></param>
+    /// <returns></returns>
+    [HttpGet("weibo/list/page")]
+    public async Task<IResult> WeiboListPage(int page = 1, int size = 20)
+    {
+        RefAsync<int> totalNumber = new(0);
+
+        var list = await Db.Queryable<WeiboEntity>().ToPageListAsync(page, size, totalNumber);
+
+        return XunetResult(list, totalNumber);
+    }
+}
+```
+
 appsettings.json
 
 ```json
 {
-  "DoWorkInterval": 60
+  "Kestrel": {
+    "EndPoints": {
+      "Http": {
+        "Url": "http://0.0.0.0:12345"
+      }
+    }
+  },
+  "DetailedErrors": true,
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  // 工作周期频率（单位：秒），设置 0 时仅工作一次
+  "DoWorkInterval": 60,
+  "SpiderConfig": {
+    "ConnectionConfig": [
+      {
+        "ConfigId": 1,
+        "DbType": 0,
+        "InitKeyType": 1,
+        "IsAutoCloseConnection": true,
+        "ConnectionString": "server=127.0.0.1;port=3306;uid=root;pwd=123456;database=hotsearch;max pool size=8000;charset=utf8;",
+        "SlaveConnectionConfigs": [
+          {
+            "ConnectionString": "server=127.0.0.1;port=3306;uid=root;pwd=123456;database=hotsearch;max pool size=8000;charset=utf8;",
+            "HitRate": 10
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 
