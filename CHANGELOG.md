@@ -1,3 +1,10 @@
+## [1.0.23](https://github.com/shelley-xl/Xunet.WinFormium/commit/80eedb20230f10a949cd4cdf1d292add1a977cd2) (2025-08-25)
+
+### Features
+
+- 二维码输出新增byte[]支持
+- 升级NuGet包
+
 ## [1.0.22](https://github.com/shelley-xl/Xunet.WinFormium/commit/d405a958bd9adc1a0a20f260620a75679d5f774f) (2025-05-26)
 
 ### Features
