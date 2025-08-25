@@ -909,8 +909,9 @@ public abstract class BaseForm : Form, IDisposable
     /// </summary>
     /// <param name="url">二维码url</param>
     /// <param name="bytes">二维码byte[]</param>
+    /// <param name="size">二维码大小</param>
     /// <param name="text">提示文本</param>
-    protected void AppendQRCode(string? url = null, byte[]? bytes = null, string? text = "用 [ 微信 ] 扫一扫")
+    protected void AppendQRCode(string? url = null, byte[]? bytes = null, int size = 300, string text = "用 [ 微信 ] 扫一扫")
     {
         if (HostWindow == null || HostWindow.IsDisposed) return;
 
@@ -927,10 +928,10 @@ public abstract class BaseForm : Form, IDisposable
                 QRCode = new PictureBox
                 {
                     Name = "QRCode",
-                    Width = 300,
-                    Height = 300,
+                    Width = size,
+                    Height = size,
                     BackColor = Color.White,
-                    Location = new Point(50, 25),
+                    Location = new Point((BaseClientSize.Width - size) / 2, (BaseClientSize.Height - size) / 2 - 25),
                     SizeMode = PictureBoxSizeMode.StretchImage
                 };
                 HostWindow.Controls.Add(QRCode);
@@ -943,7 +944,7 @@ public abstract class BaseForm : Form, IDisposable
                     Font = new Font(FontFamily.GenericSansSerif, 10),
                     ForeColor = Color.Gray,
                     Width = HostWindow.Width,
-                    Location = new Point(0, 345),
+                    Location = new Point(0, BaseClientSize.Height - 55),
                     TextAlign = ContentAlignment.BottomCenter
                 };
                 HostWindow.Controls.Add(QRCodeMessage);
