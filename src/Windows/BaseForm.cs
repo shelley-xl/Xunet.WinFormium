@@ -908,10 +908,13 @@ public abstract class BaseForm : Form, IDisposable
     /// 二维码输出
     /// </summary>
     /// <param name="url">二维码url</param>
+    /// <param name="bytes">二维码byte[]</param>
     /// <param name="text">提示文本</param>
-    protected void AppendQRCode(string? url, string? text = "用 [ 微信 ] 扫一扫")
+    protected void AppendQRCode(string? url = null, byte[]? bytes = null, string? text = "用 [ 微信 ] 扫一扫")
     {
         if (HostWindow == null || HostWindow.IsDisposed) return;
+
+        if (url is null && bytes is null) return;
 
         InvokeOnUIThread(() =>
         {
@@ -945,7 +948,14 @@ public abstract class BaseForm : Form, IDisposable
                 };
                 HostWindow.Controls.Add(QRCodeMessage);
             }
-            QRCode.ImageLocation = url;
+            if (url is not null)
+            {
+                QRCode.ImageLocation = url;
+            }
+            else if (bytes is not null)
+            {
+                QRCode.Image = Image.FromStream(new MemoryStream(bytes));
+            }
             QRCodeMessage.Text = text;
         });
     }
