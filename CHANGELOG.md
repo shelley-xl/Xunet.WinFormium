@@ -1,3 +1,9 @@
+## [1.0.24](https://github.com/shelley-xl/Xunet.WinFormium/commit/8388a6728a54b9990e3515c4cad4d1ea2121cc43) (2025-08-25)
+
+### Features
+
+- 二维码输出支持自定义尺寸
+
 ## [1.0.23](https://github.com/shelley-xl/Xunet.WinFormium/commit/80eedb20230f10a949cd4cdf1d292add1a977cd2) (2025-08-25)
 
 ### Features
