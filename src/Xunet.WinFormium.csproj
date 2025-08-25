@@ -39,11 +39,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Jint" Version="4.2.2" />
-		<PackageReference Include="HtmlAgilityPack" Version="1.12.1" />
+		<PackageReference Include="Jint" Version="4.4.1" />
+		<PackageReference Include="HtmlAgilityPack" Version="1.12.2" />
 		<PackageReference Include="MiniProfiler.AspNetCore" Version="4.5.4" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.2" />
-		<PackageReference Include="SqlSugarCore" Version="5.1.4.193" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
+		<PackageReference Include="SqlSugarCore" Version="5.1.4.200" />
 		<PackageReference Include="SuperDriver" Version="5.0.4" />
 		<PackageReference Include="SuperSpider" Version="1.0.8" />
 		<PackageReference Include="Xunet" Version="1.0.23" />
