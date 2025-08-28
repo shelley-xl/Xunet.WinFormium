@@ -35,10 +35,12 @@
 
 	<ItemGroup>
 		<Using Include="Microsoft.Extensions.DependencyInjection" />
+		<Using Include="System.Reflection" />
 		<Using Include="Xunet.WinFormium" />
 		<Using Include="Xunet.WinFormium.Core" />
 		<Using Include="Xunet.WinFormium.Tests" />
 		<Using Include="Xunet.WinFormium.Tests.Models" />
+		<Using Include="Xunet.WinFormium.Tests.Windows" />
 		<Using Include="SqlSugar" />
 	</ItemGroup>
 
