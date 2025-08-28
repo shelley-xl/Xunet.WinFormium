@@ -1,4 +1,5 @@
 using System.Reflection;
+using Xunet.WinFormium.Tests.Windows;
 
 internal static class Program
 {
