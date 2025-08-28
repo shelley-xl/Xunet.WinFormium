@@ -615,15 +615,9 @@ public abstract class BaseForm : Form, IDisposable
                 Source = new Uri(BaseWebView2Source),
             };
 
-            WebView2.CoreWebView2InitializationCompleted += (sender, e) =>
-            {
-                WebView2InitializationCompleted(sender, e);
-            };
+            WebView2.CoreWebView2InitializationCompleted += WebView2InitializationCompleted;
 
-            WebView2.NavigationCompleted += (sender, e) =>
-            {
-                WebView2NavigationCompleted(sender, e);
-            };
+            WebView2.NavigationCompleted += WebView2NavigationCompleted;
 
             // 初始化分割容器控件
             var splitContainer = new SplitContainer
