@@ -1,3 +1,15 @@
+## [1.0.26](https://github.com/shelley-xl/Xunet.WinFormium/commit/467c2865fd748aefc210814bf01a2603753e1773) (2025-08-28)
+
+### Features
+
+- 新增WebView2支持
+- 新增状态栏显示在线时长和内存占用情况
+- 新增定时作业开启/暂停功能
+
+### Bug Fixes
+
+- 修复已知问题
+
 ## [1.0.25](https://github.com/shelley-xl/Xunet.WinFormium/commit/17bfddb2fbf804a7f7accb31f105c7ec2415cc2e) (2025-08-25)
 
 ### Bug Fixes
