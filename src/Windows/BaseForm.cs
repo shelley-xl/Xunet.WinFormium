@@ -15,6 +15,9 @@ using Xunet.WinFormium.Core;
 using Yitter.IdGenerator;
 using HtmlAgilityPack;
 using SqlSugar;
+using System.Diagnostics;
+using Microsoft.Web.WebView2.WinForms;
+using Microsoft.Web.WebView2.Core;
 
 /// <summary>
 /// 窗体基类
@@ -64,6 +67,11 @@ public abstract class BaseForm : Form, IDisposable
     /// BoxControl
     /// </summary>
     Control.ControlCollection? BoxControl;
+
+    /// <summary>
+    /// WebView2
+    /// </summary>
+    WebView2? WebView2 { get; set; }
 
     #endregion
 
@@ -160,6 +168,21 @@ public abstract class BaseForm : Form, IDisposable
     /// </summary>
     protected virtual bool UseDatagridView { get; } = false;
 
+    /// <summary>
+    /// 是否使用状态栏（在线时长、内存占用情况显示）
+    /// </summary>
+    protected virtual bool UseStatusStrip { get; } = false;
+
+    /// <summary>
+    /// 是否使用WebView2展示，优先级大于UseDatagridView
+    /// </summary>
+    protected virtual bool UseWebView2 { get; } = false;
+
+    /// <summary>
+    /// WebView2初始化源
+    /// </summary>
+    protected virtual string BaseWebView2Source { get; } = "https://www.baidu.com/";
+
     #endregion   
 
     #endregion
@@ -234,7 +257,16 @@ public abstract class BaseForm : Form, IDisposable
             InitializeDefaultMenu();
         }
 
-        if (UseDatagridView)
+        if (UseStatusStrip)
+        {
+            InitializeStatusStrip();
+        }
+
+        if (UseWebView2)
+        {
+            InitializeWebView2();
+        }
+        else if (UseDatagridView)
         {
             InitializeDatagridView();
         }
@@ -262,57 +294,85 @@ public abstract class BaseForm : Form, IDisposable
             };
 
             // 一级
+            var tsmi_work = new ToolStripMenuItem
+            {
+                Text = "作业"
+            };
+
             var tsmi_fun = new ToolStripMenuItem
             {
-                Text = "功能"
+                Text = "任务",
             };
 
             var tsmi_op = new ToolStripMenuItem
             {
-                Text = "操作"
+                Text = "日志",
             };
 
             var tsmi_ab = new ToolStripMenuItem
             {
-                Text = "关于"
+                Text = "关于",
             };
 
             // 二级
+            var tsmi_start = new ToolStripMenuItem
+            {
+                Name = "Start",
+                Text = "开启",
+                Enabled = false,
+            };
+
+            var tsmi_stop = new ToolStripMenuItem
+            {
+                Name = "Pause",
+                Text = "暂停",
+                Enabled = BaseDoWorkInterval > 0,
+            };
+
             var tsmi_exc = new ToolStripMenuItem
             {
                 Name = "Execute",
                 Text = "运行",
-                Enabled = true
+                Enabled = true,
             };
 
             var tsmi_can = new ToolStripMenuItem
             {
                 Name = "Cancel",
                 Text = "取消",
-                Enabled = false
+                Enabled = false,
             };
 
             var tsmi_export = new ToolStripMenuItem
             {
-                Text = "导出日志"
+                Text = "导出",
             };
 
             var tsmi_clear = new ToolStripMenuItem
             {
-                Text = "清空日志"
-            };
-
-            var tsmi_close = new ToolStripMenuItem
-            {
-                Text = "关闭软件"
+                Text = "清空",
             };
 
             var tsmi_about = new ToolStripMenuItem
             {
-                Text = "关于软件"
+                Text = "关于软件",
             };
 
             // 事件
+            tsmi_start.Click += (sender, e) =>
+            {
+                tsmi_start.Enabled = false;
+                tsmi_stop.Enabled = true;
+                Task.Run(AddJob);
+            };
+
+            tsmi_stop.Click += (sender, e) =>
+            {
+                tsmi_stop.Enabled = false;
+                tsmi_start.Enabled = true;
+                JobManager.RemoveJob("DoWork");
+            };
+
             tsmi_exc.Click += (sender, e) =>
             {
                 tsmi_exc.Enabled = false;
@@ -363,37 +423,38 @@ public abstract class BaseForm : Form, IDisposable
                 }
             };
 
-            tsmi_close.Click += (sender, e) =>
-            {
-                Environment.Exit(0);
-            };
-
             tsmi_about.Click += (sender, e) =>
             {
-                MessageBox.Show($"当前版本：{Version}", "关于软件", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"当前版本：{Version}\r\n\r\n开发作者：徐来（QQ386710057）", "关于软件", MessageBoxButtons.OK, MessageBoxIcon.Information);
             };
 
             // 绑定
+            tsmi_work.DropDownItems.AddRange(
+            [
+                tsmi_start,
+                tsmi_stop,
+            ]);
+
             tsmi_fun.DropDownItems.AddRange(
             [
                 tsmi_exc,
-                tsmi_can
+                tsmi_can,
             ]);
 
             tsmi_op.DropDownItems.AddRange(
             [
                 tsmi_export,
                 tsmi_clear,
-                tsmi_close
             ]);
 
             tsmi_ab.DropDownItems.AddRange(
             [
-                tsmi_about
+                tsmi_about,
             ]);
 
             menu.Items.AddRange(
             [
+                tsmi_work,
                 tsmi_fun,
                 tsmi_op,
                 tsmi_ab,
@@ -407,12 +468,12 @@ public abstract class BaseForm : Form, IDisposable
 
             var tsmi_about_1 = new ToolStripMenuItem
             {
-                Text = "关于软件"
+                Text = "关于软件",
             };
 
             var tsmi_close_1 = new ToolStripMenuItem
             {
-                Text = "关闭软件"
+                Text = "关闭软件",
             };
 
             tsmi_main.Click += (sender, e) =>
@@ -433,7 +494,7 @@ public abstract class BaseForm : Form, IDisposable
 
             var cms = new ContextMenuStrip
             {
-                Name = "ContextMenu"
+                Name = "ContextMenu",
             };
 
             cms.Items.Add(tsmi_main);
@@ -441,7 +502,7 @@ public abstract class BaseForm : Form, IDisposable
             cms.Items.AddRange(
             [
                 tsmi_about_1,
-                tsmi_close_1
+                tsmi_close_1,
             ]);
 
             notifyIcon = new NotifyIcon
@@ -449,7 +510,7 @@ public abstract class BaseForm : Form, IDisposable
                 Icon = Properties.Resources.favicon,
                 Visible = true,
                 Text = Text,
-                ContextMenuStrip = cms
+                ContextMenuStrip = cms,
             };
 
             notifyIcon.MouseClick += (sender, e) =>
@@ -466,6 +527,140 @@ public abstract class BaseForm : Form, IDisposable
     }
     #endregion
 
+    #region 初始化状态栏
+
+    /// <summary>
+    /// 初始化状态栏
+    /// </summary>
+    protected virtual void InitializeStatusStrip()
+    {
+        if (HostWindow == null || HostWindow.IsDisposed) return;
+
+        InvokeOnUIThread(() =>
+        {
+            int seconds = 0;
+            var statusStrip = new StatusStrip
+            {
+                Name = "StatusStrip",
+            };
+            var timeLabel = new ToolStripStatusLabel
+            {
+                Text = "loading...",
+            };
+            statusStrip.Items.Add(timeLabel);
+            HostWindow.Controls.Add(statusStrip);
+            JobManager.AddJob(() =>
+            {
+                if (HostWindow == null || HostWindow.IsDisposed) return;
+
+                var counter = new PerformanceCounter("Process", "Working Set - Private", Process.GetCurrentProcess().ProcessName);
+                var usedMemory = Math.Round(counter.RawValue / 1024.0 / 1024.0, 1);
+                int hours = seconds / 3600;
+                int minutes = seconds % 3600 / 60;
+                int remainingSeconds = seconds % 3600 % 60;
+                var nextRun = string.Empty;
+                var doWork = JobManager.GetSchedule("DoWork");
+                if (doWork != null)
+                {
+                    nextRun = $"，下次执行还剩：{(int)(doWork.NextRun - DateTime.Now).TotalSeconds:00} 秒";
+                }
+                else
+                {
+                    nextRun = "，未开启定时作业";
+                }
+
+                BeginInvoke(new Action(() =>
+                {
+                    timeLabel.Text = $"在线时长：{hours:00} 小时 {minutes:00} 分 {remainingSeconds:00} 秒，内存：{usedMemory:0.0} MB{nextRun}";
+                }));
+
+                seconds++;
+            },
+            schedule =>
+            {
+                schedule.WithName("PerformanceCounter");
+                schedule.ToRunNow().AndEvery(1).Seconds();
+            });
+        });
+    }
+
+    #endregion
+
+    #region 初始化WebView2
+
+    /// <summary>
+    /// 初始化WebView2
+    /// </summary>
+    protected virtual void InitializeWebView2()
+    {
+        if (HostWindow == null || HostWindow.IsDisposed) return;
+
+        InvokeOnUIThread(() =>
+        {
+            var bottom = 0;
+            var offset = 0;
+            if (HostWindow.Controls.Find("Menu", false).FirstOrDefault() is MenuStrip Menu)
+            {
+                offset = Menu.Height;
+            }
+            if (HostWindow.Controls.Find("StatusStrip", false).FirstOrDefault() is StatusStrip Status)
+            {
+                bottom = Status.Height;
+            }
+
+            WebView2 = new()
+            {
+                Name = "WebView2",
+                Dock = DockStyle.Fill,
+                Source = new Uri(BaseWebView2Source),
+            };
+
+            WebView2.CoreWebView2InitializationCompleted += (sender, e) =>
+            {
+                WebView2InitializationCompleted(sender, e);
+            };
+
+            WebView2.NavigationCompleted += (sender, e) =>
+            {
+                WebView2NavigationCompleted(sender, e);
+            };
+
+            // 初始化分割容器控件
+            var splitContainer = new SplitContainer
+            {
+                Name = "Split",
+                Anchor = AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom | AnchorStyles.Left,
+                Width = HostWindow.Width,
+                Height = HostWindow.ClientRectangle.Height - offset - bottom,
+                Location = new Point(0, offset),
+                SplitterDistance = BaseClientSize.Width - 400,
+            };
+
+            // 分割容器左边
+            splitContainer.Panel1.Controls.Add(WebView2);
+
+            HostWindow.Controls.Add(splitContainer);
+        });
+    }
+
+    /// <summary>
+    /// 初始化完成事件
+    /// </summary>
+    protected virtual void WebView2InitializationCompleted(object? sender, CoreWebView2InitializationCompletedEventArgs e)
+    {
+
+    }
+
+    /// <summary>
+    /// 导航完成事件
+    /// </summary>
+    protected virtual void WebView2NavigationCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e)
+    {
+
+    }
+
+    #endregion
+
     #region 初始化表格
 
     /// <summary>
@@ -477,10 +672,15 @@ public abstract class BaseForm : Form, IDisposable
 
         InvokeOnUIThread(() =>
         {
+            var bottom = 0;
             var offset = 0;
             if (HostWindow.Controls.Find("Menu", false).FirstOrDefault() is MenuStrip Menu)
             {
                 offset = Menu.Height;
+            }
+            if (HostWindow.Controls.Find("StatusStrip", false).FirstOrDefault() is StatusStrip Status)
+            {
+                bottom = Status.Height;
             }
             var Tab = new TabControl
             {
@@ -488,7 +688,7 @@ public abstract class BaseForm : Form, IDisposable
                 SelectedIndex = 1,
                 Anchor = AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom | AnchorStyles.Left,
                 Width = HostWindow.Width,
-                Height = HostWindow.ClientRectangle.Height - offset,
+                Height = HostWindow.ClientRectangle.Height - offset - bottom,
                 Location = new Point(0, offset),
             };
             var TabPageHome = new TabPage
@@ -569,6 +769,22 @@ public abstract class BaseForm : Form, IDisposable
         }
     }
 
+    void AddJob()
+    {
+        if (!string.IsNullOrEmpty(BaseDoWorkCron))
+        {
+            JobManager.AddJob(DoWork, schedule => schedule.WithName("DoWork").ToRunWithCron(BaseDoWorkCron));
+        }
+        else if (BaseDoWorkInterval > 0)
+        {
+            JobManager.AddJob(DoWork, schedule => schedule.WithName("DoWork").ToRunNow().AndEvery(BaseDoWorkInterval).Seconds());
+        }
+        else
+        {
+            DoWork();
+        }
+    }
+
     /// <summary>
     /// 窗体加载事件
     /// </summary>
@@ -576,21 +792,7 @@ public abstract class BaseForm : Form, IDisposable
     /// <param name="e"></param>
     protected void Form_Load(object? sender, EventArgs e)
     {
-        Task.Run(() =>
-        {
-            if (!string.IsNullOrEmpty(BaseDoWorkCron))
-            {
-                JobManager.AddJob(DoWork, schedule => schedule.WithName("DoWork").ToRunWithCron(BaseDoWorkCron));
-            }
-            else if (BaseDoWorkInterval > 0)
-            {
-                JobManager.AddJob(DoWork, schedule => schedule.WithName("DoWork").ToRunNow().AndEvery(BaseDoWorkInterval).Seconds());
-            }
-            else
-            {
-                DoWork();
-            }
-        });
+        Task.Run(AddJob);
     }
 
     #endregion
@@ -786,13 +988,18 @@ public abstract class BaseForm : Form, IDisposable
 
         InvokeOnUIThread(() =>
         {
+            var bottom = 0;
             var offset = 0;
             if (HostWindow.Controls.Find("Menu", false).FirstOrDefault() is MenuStrip Menu)
             {
                 offset = Menu.Height;
             }
+            if (HostWindow.Controls.Find("StatusStrip", false).FirstOrDefault() is StatusStrip Status)
+            {
+                bottom = Status.Height;
+            }
             var width = HostWindow.Width;
-            var height = HostWindow.ClientRectangle.Height - offset;
+            var height = HostWindow.ClientRectangle.Height - offset - bottom;
             var location = new Point(0, offset);
             BoxControl = HostWindow.Controls;
             if (HostWindow.Controls.Find("Tab", false).FirstOrDefault() is TabControl Tab)
@@ -804,6 +1011,13 @@ public abstract class BaseForm : Form, IDisposable
                     height = TabPageBox.Height;
                     location = new Point(0, 0);
                 }
+            }
+            if (HostWindow.Controls.Find("Split", false).FirstOrDefault() is SplitContainer Split)
+            {
+                BoxControl = Split.Panel2.Controls;
+                width = Split.Width;
+                height = Split.Height;
+                location = new Point(0, 0);
             }
             if (BoxControl.Find("Box", false).FirstOrDefault() is not RichTextBox Box)
             {
