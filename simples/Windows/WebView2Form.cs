@@ -1,4 +1,4 @@
-﻿namespace Xunet.WinFormium.Tests.Windows;
+﻿namespace Xunet.WinFormium.Simples.Windows;
 
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
@@ -91,9 +91,12 @@ public class WebView2Form : BaseForm
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    protected override void WebView2InitializationCompleted(object? sender, CoreWebView2InitializationCompletedEventArgs e)
+    /// <param name="cancellationToken"></param>
+    protected override async Task WebView2InitializationCompleted(object? sender, CoreWebView2InitializationCompletedEventArgs e, CancellationToken cancellationToken)
     {
         AppendBox("初始化完成！");
+
+        await Task.CompletedTask;
     }
 
     /// <summary>
@@ -101,11 +104,14 @@ public class WebView2Form : BaseForm
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    protected override void WebView2NavigationCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e)
+    /// <param name="cancellationToken"></param>
+    protected override async Task WebView2NavigationCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e, CancellationToken cancellationToken)
     {
-        if (sender is WebView2 webView2)
+        if (sender is WebView2 webView2 && e.IsSuccess)
         {
             AppendBox(webView2.Source.AbsoluteUri);
+
+            await Task.CompletedTask;
         }
     }
 }

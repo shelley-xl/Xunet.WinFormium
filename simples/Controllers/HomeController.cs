@@ -1,10 +1,10 @@
-﻿namespace Xunet.WinFormium.Tests.Controllers;
+﻿namespace Xunet.WinFormium.Simples.Controllers;
 
 using Microsoft.AspNetCore.Mvc;
 using Xunet.WinFormium.Controllers;
-using Xunet.WinFormium.Tests.Models;
+using Xunet.WinFormium.Simples.Models;
 using SqlSugar;
-using Xunet.WinFormium.Tests.Entities;
+using Xunet.WinFormium.Simples.Entities;
 using Microsoft.AspNetCore.Http;
 
 /// <summary>

@@ -1,4 +1,4 @@
-﻿namespace Xunet.WinFormium.Tests.Models;
+﻿namespace Xunet.WinFormium.Simples.Models;
 
 using SqlSugar;
 using System.ComponentModel;

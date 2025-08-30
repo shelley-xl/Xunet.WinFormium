@@ -1,4 +1,4 @@
-﻿namespace Xunet.WinFormium.Tests.Entities;
+﻿namespace Xunet.WinFormium.Simples.Entities;
 
 using SuperSpider;
 

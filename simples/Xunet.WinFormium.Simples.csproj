@@ -16,10 +16,10 @@
 		<FileVersion>$(Version)</FileVersion>
 		<Authors>徐来</Authors>
 		<Company>徐来</Company>
-		<Title>Xunet.WinFormium.Tests</Title>
-		<Product>Xunet.WinFormium.Tests</Product>
-		<Description>Xunet.WinFormium.Tests</Description>
-		<Summary>Xunet.WinFormium.Tests</Summary>
+		<Title>Xunet.WinFormium.Simples</Title>
+		<Product>Xunet.WinFormium.Simples</Product>
+		<Description>Xunet.WinFormium.Simples</Description>
+		<Summary>Xunet.WinFormium.Simples</Summary>
 		<Copyright>Copyright © 徐来 Xulai 2024</Copyright>
 	</PropertyGroup>
 
@@ -38,9 +38,9 @@
 		<Using Include="System.Reflection" />
 		<Using Include="Xunet.WinFormium" />
 		<Using Include="Xunet.WinFormium.Core" />
-		<Using Include="Xunet.WinFormium.Tests" />
-		<Using Include="Xunet.WinFormium.Tests.Models" />
-		<Using Include="Xunet.WinFormium.Tests.Windows" />
+		<Using Include="Xunet.WinFormium.Simples" />
+		<Using Include="Xunet.WinFormium.Simples.Models" />
+		<Using Include="Xunet.WinFormium.Simples.Windows" />
 		<Using Include="SqlSugar" />
 	</ItemGroup>
 

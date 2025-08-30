@@ -1,4 +1,4 @@
-﻿namespace Xunet.WinFormium.Tests.Windows;
+﻿namespace Xunet.WinFormium.Simples.Windows;
 
 using System;
 using System.Threading;

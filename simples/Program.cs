@@ -20,7 +20,7 @@ internal static class Program
             options.Storage = new()
             {
                 DataVersion = "24.8.9.1822",
-                DbName = "Xunet.WinFormium.Tests",
+                DbName = "Xunet.WinFormium.Simples",
                 EntityTypes = [typeof(CnBlogsModel)]
             };
             options.Snowflake = new()

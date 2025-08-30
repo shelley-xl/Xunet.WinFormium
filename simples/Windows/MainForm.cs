@@ -1,9 +1,9 @@
-﻿namespace Xunet.WinFormium.Tests.Windows;
+﻿namespace Xunet.WinFormium.Simples.Windows;
 
 using SuperSpider;
 using Xunet.WinFormium.Windows;
-using Xunet.WinFormium.Tests.Entities;
-using Xunet.WinFormium.Tests.Models;
+using Xunet.WinFormium.Simples.Entities;
+using Xunet.WinFormium.Simples.Models;
 
 /// <summary>
 /// 主窗体
