@@ -1,3 +1,9 @@
+## [1.0.29](https://github.com/shelley-xl/Xunet.WinFormium/commit/6e2b17a541c588c6d117c5cd7b41783ce0694399) (2025-08-31)
+
+### Features
+
+- 指定WebView2初始化环境
+
 ## [1.0.28](https://github.com/shelley-xl/Xunet.WinFormium/commit/48c548588954e5efbe1ac7997f765b49d2c88f33) (2025-08-30)
 
 ### Bug Fixes
