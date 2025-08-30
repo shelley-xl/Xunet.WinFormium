@@ -1092,6 +1092,7 @@ public abstract class BaseForm : Form, IDisposable
                         DatagridViewTitle = new Label
                         {
                             Name = "DatagridViewTitle",
+                            Anchor = AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Left,
                             Text = title,
                             Width = TabPageHome.Width,
                             Location = new Point(0, offset),
