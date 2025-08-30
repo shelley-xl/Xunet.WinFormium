@@ -73,6 +73,11 @@ public abstract class BaseForm : Form, IDisposable
     /// </summary>
     WebView2? WebView2 { get; set; }
 
+    /// <summary>
+    /// 屏幕缩放比例
+    /// </summary>
+    float ScalingFactor { get; set; }
+
     #endregion
 
     #region 只读
@@ -249,6 +254,7 @@ public abstract class BaseForm : Form, IDisposable
     protected BaseForm()
     {
         HostWindow = this;
+        ScalingFactor = DpiHelper.GetDpiScalingFactor();
 
         InitializeComponent();
 
@@ -615,9 +621,15 @@ public abstract class BaseForm : Form, IDisposable
                 Source = new Uri(BaseWebView2Source),
             };
 
-            WebView2.CoreWebView2InitializationCompleted += WebView2InitializationCompleted;
+            WebView2.CoreWebView2InitializationCompleted += (sender, e) =>
+            {
+                WebView2InitializationCompleted(sender, e, TokenSource.Token);
+            };
 
-            WebView2.NavigationCompleted += WebView2NavigationCompleted;
+            WebView2.NavigationCompleted += (sender, e) =>
+            {
+                WebView2NavigationCompleted(sender, e, TokenSource.Token);
+            };
 
             // 初始化分割容器控件
             var splitContainer = new SplitContainer
@@ -627,7 +639,7 @@ public abstract class BaseForm : Form, IDisposable
                 Width = HostWindow.Width,
                 Height = HostWindow.ClientRectangle.Height - offset - bottom,
                 Location = new Point(0, offset),
-                SplitterDistance = BaseClientSize.Width - 400,
+                SplitterDistance = (int)((BaseClientSize.Width - 400) * ScalingFactor),
             };
 
             // 分割容器左边
@@ -640,17 +652,17 @@ public abstract class BaseForm : Form, IDisposable
     /// <summary>
     /// 初始化完成事件
     /// </summary>
-    protected virtual void WebView2InitializationCompleted(object? sender, CoreWebView2InitializationCompletedEventArgs e)
+    protected virtual Task WebView2InitializationCompleted(object? sender, CoreWebView2InitializationCompletedEventArgs e, CancellationToken cancellationToken = default)
     {
-
+        return Task.CompletedTask;
     }
 
     /// <summary>
     /// 导航完成事件
     /// </summary>
-    protected virtual void WebView2NavigationCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e)
+    protected virtual Task WebView2NavigationCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e, CancellationToken cancellationToken = default)
     {
-
+        return Task.CompletedTask;
     }
 
     #endregion
@@ -1085,7 +1097,7 @@ public abstract class BaseForm : Form, IDisposable
                             AllowUserToAddRows = false,
                             AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                         };
-                        DataGridView.RowPostPaint += (object? sender, DataGridViewRowPostPaintEventArgs e) =>
+                        DataGridView.RowPostPaint += (sender, e) =>
                         {
                             Rectangle rectangle = new(e.RowBounds.Location.X, e.RowBounds.Location.Y, DataGridView.RowHeadersWidth - 4, e.RowBounds.Height);
                             TextRenderer.DrawText(e.Graphics, (e.RowIndex + 1).ToString(), DataGridView.RowHeadersDefaultCellStyle.Font, rectangle, DataGridView.RowHeadersDefaultCellStyle.ForeColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Right);
@@ -1139,7 +1151,7 @@ public abstract class BaseForm : Form, IDisposable
                     Width = size,
                     Height = size,
                     BackColor = Color.White,
-                    Location = new Point((BaseClientSize.Width - size) / 2, (BaseClientSize.Height - size) / 2 - 25),
+                    Location = new Point((HostWindow.Width - size) / 2, (HostWindow.Height - size) / 2 - 39),
                     SizeMode = PictureBoxSizeMode.StretchImage
                 };
                 HostWindow.Controls.Add(QRCode);
@@ -1152,7 +1164,7 @@ public abstract class BaseForm : Form, IDisposable
                     Font = new Font(FontFamily.GenericSansSerif, 10),
                     ForeColor = Color.Gray,
                     Width = HostWindow.Width,
-                    Location = new Point(0, BaseClientSize.Height - 55),
+                    Location = new Point(0, HostWindow.Height - (int)(90 * ScalingFactor)),
                     TextAlign = ContentAlignment.BottomCenter
                 };
                 HostWindow.Controls.Add(QRCodeMessage);
@@ -1494,6 +1506,19 @@ public abstract class BaseForm : Form, IDisposable
             TokenSource = new();
         }
         JobManager.Start();
+    }
+
+    #endregion
+
+    #region 获取WebView2
+
+    /// <summary>
+    /// 获取WebView2
+    /// </summary>
+    /// <returns></returns>
+    protected WebView2? GetWebView2()
+    {
+        return WebView2;
     }
 
     #endregion
