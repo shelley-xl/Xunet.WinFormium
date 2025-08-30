@@ -1093,10 +1093,11 @@ public abstract class BaseForm : Form, IDisposable
                         {
                             Name = "DatagridViewTitle",
                             Text = title,
+                            Width = TabPageHome.Width,
                             Location = new Point(0, offset),
                         };
                         TabPageHome.Controls.Add(DatagridViewTitle);
-                        offset += DatagridViewTitle.Height;
+                        offset += DatagridViewTitle.Height + offset;
                     }
                     DatagridViewTitle.Text = title;
                     if (TabPageHome.Controls.Find("DatagridView", false).FirstOrDefault() is not DataGridView DataGridView)
