@@ -41,6 +41,32 @@ public class MainForm : BaseForm
     protected override bool UseDatagridView => true;
 
     /// <summary>
+    /// 任务取消
+    /// </summary>
+    /// <param name="ex"></param>
+    /// <returns></returns>
+    protected override async Task DoCanceledExceptionAsync(OperationCanceledException ex)
+    {
+        AppendBox("任务取消！", Color.Red);
+
+        await Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// 系统异常
+    /// </summary>
+    /// <param name="ex"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    protected override async Task DoExceptionAsync(Exception ex, CancellationToken cancellationToken)
+    {
+        AppendBox("系统异常！", Color.Red);
+        AppendBox(ex.ToString(), Color.Red);
+
+        await Task.CompletedTask;
+    }
+
+    /// <summary>
     /// 执行任务
     /// </summary>
     /// <param name="cancellationToken"></param>
@@ -98,32 +124,6 @@ public class MainForm : BaseForm
         AppendDatagridView(data);
 
         AppendBox("采集完成！", ColorTranslator.FromHtml("#1296db"));
-
-        await Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// 系统异常
-    /// </summary>
-    /// <param name="ex"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    protected override async Task DoExceptionAsync(Exception ex, CancellationToken cancellationToken)
-    {
-        AppendBox("系统异常！", Color.Red);
-        AppendBox(ex.ToString(), Color.Red);
-
-        await Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// 任务取消
-    /// </summary>
-    /// <param name="ex"></param>
-    /// <returns></returns>
-    protected override async Task DoCanceledExceptionAsync(OperationCanceledException ex)
-    {
-        AppendBox("任务取消！", Color.Red);
 
         await Task.CompletedTask;
     }
