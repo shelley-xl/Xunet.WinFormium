@@ -49,9 +49,25 @@ public abstract class BaseForm : Form, IDisposable
     }
 
     /// <summary>
+    /// 屏幕缩放比例
+    /// </summary>
+    static float ScalingFactor
+    {
+        get
+        {
+            return DpiHelper.GetDpiScalingFactor();
+        }
+    }
+
+    /// <summary>
     /// HTML文档
     /// </summary>
     static HtmlDocument? HtmlDocument { get; set; }
+
+    /// <summary>
+    /// WebView2
+    /// </summary>
+    static WebView2? WebView2 { get; set; }
 
     /// <summary>
     /// 当前窗体
@@ -61,22 +77,12 @@ public abstract class BaseForm : Form, IDisposable
     /// <summary>
     /// NotifyIcon
     /// </summary>
-    NotifyIcon? notifyIcon;
+    NotifyIcon? NotifyIcon;
 
     /// <summary>
     /// BoxControl
     /// </summary>
     Control.ControlCollection? BoxControl;
-
-    /// <summary>
-    /// WebView2
-    /// </summary>
-    WebView2? WebView2 { get; set; }
-
-    /// <summary>
-    /// 屏幕缩放比例
-    /// </summary>
-    float ScalingFactor { get; set; }
 
     #endregion
 
@@ -112,6 +118,17 @@ public abstract class BaseForm : Form, IDisposable
         get
         {
             return DependencyResolver.Current?.GetRequiredService<ISqlSugarClient>() ?? throw new InvalidOperationException("No storage for type 'StartupOptions.SqliteStorage' has been initialized.");
+        }
+    }
+
+    /// <summary>
+    /// WebView2
+    /// </summary>
+    protected static WebView2 WebView2Instance
+    {
+        get
+        {
+            return WebView2 ?? throw new InvalidOperationException("Please override the UseWebView2 field and set it to true.");
         }
     }
 
@@ -254,7 +271,6 @@ public abstract class BaseForm : Form, IDisposable
     protected BaseForm()
     {
         HostWindow = this;
-        ScalingFactor = DpiHelper.GetDpiScalingFactor();
 
         InitializeComponent();
 
@@ -511,7 +527,7 @@ public abstract class BaseForm : Form, IDisposable
                 tsmi_close_1,
             ]);
 
-            notifyIcon = new NotifyIcon
+            NotifyIcon = new NotifyIcon
             {
                 Icon = Properties.Resources.favicon,
                 Visible = true,
@@ -519,7 +535,7 @@ public abstract class BaseForm : Form, IDisposable
                 ContextMenuStrip = cms,
             };
 
-            notifyIcon.MouseClick += (sender, e) =>
+            NotifyIcon.MouseClick += (sender, e) =>
             {
                 if (e.Button == MouseButtons.Left)
                 {
@@ -623,12 +639,12 @@ public abstract class BaseForm : Form, IDisposable
 
             WebView2.CoreWebView2InitializationCompleted += (sender, e) =>
             {
-                WebView2InitializationCompleted(sender, e, TokenSource.Token);
+                WebView2InitializationCompletedAsync(sender, e, TokenSource.Token);
             };
 
             WebView2.NavigationCompleted += (sender, e) =>
             {
-                WebView2NavigationCompleted(sender, e, TokenSource.Token);
+                WebView2NavigationCompletedAsync(sender, e, TokenSource.Token);
             };
 
             // 初始化分割容器控件
@@ -645,6 +661,7 @@ public abstract class BaseForm : Form, IDisposable
             // 分割容器左边
             splitContainer.Panel1.Controls.Add(WebView2);
 
+            // 添加到主窗体
             HostWindow.Controls.Add(splitContainer);
         });
     }
@@ -652,7 +669,7 @@ public abstract class BaseForm : Form, IDisposable
     /// <summary>
     /// 初始化完成事件
     /// </summary>
-    protected virtual Task WebView2InitializationCompleted(object? sender, CoreWebView2InitializationCompletedEventArgs e, CancellationToken cancellationToken = default)
+    protected virtual Task WebView2InitializationCompletedAsync(object? sender, CoreWebView2InitializationCompletedEventArgs e, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }
@@ -660,7 +677,7 @@ public abstract class BaseForm : Form, IDisposable
     /// <summary>
     /// 导航完成事件
     /// </summary>
-    protected virtual Task WebView2NavigationCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e, CancellationToken cancellationToken = default)
+    protected virtual Task WebView2NavigationCompletedAsync(object? sender, CoreWebView2NavigationCompletedEventArgs e, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }
@@ -861,9 +878,9 @@ public abstract class BaseForm : Form, IDisposable
     {
         if (HostWindow == null || HostWindow.IsDisposed) return;
 
-        if (HostWindow!.InvokeRequired)
+        if (HostWindow.InvokeRequired)
         {
-            HostWindow!.Invoke(new System.Windows.Forms.MethodInvoker(action));
+            HostWindow.Invoke(new System.Windows.Forms.MethodInvoker(action));
         }
         else
         {
@@ -881,9 +898,9 @@ public abstract class BaseForm : Form, IDisposable
     {
         if (HostWindow == null || HostWindow.IsDisposed) return default;
 
-        if (HostWindow!.InvokeRequired)
+        if (HostWindow.InvokeRequired)
         {
-            return HostWindow!.Invoke(method, args);
+            return HostWindow.Invoke(method, args);
         }
 
         return method.DynamicInvoke(args);
@@ -900,14 +917,12 @@ public abstract class BaseForm : Form, IDisposable
     {
         if (HostWindow == null || HostWindow.IsDisposed) return default;
 
-        if (HostWindow!.InvokeRequired)
+        if (HostWindow.InvokeRequired)
         {
-            return (T?)HostWindow!.Invoke(method, args);
+            return (T?)HostWindow.Invoke(method, args);
         }
 
-
         return (T?)method.DynamicInvoke(args);
-
     }
 
     /// <summary>
@@ -920,9 +935,9 @@ public abstract class BaseForm : Form, IDisposable
     {
         if (HostWindow == null || HostWindow.IsDisposed) return default;
 
-        if (HostWindow!.InvokeRequired)
+        if (HostWindow.InvokeRequired)
         {
-            return HostWindow!.Invoke(method);
+            return HostWindow.Invoke(method);
         }
 
         return method.Invoke();
@@ -1021,8 +1036,8 @@ public abstract class BaseForm : Form, IDisposable
             if (HostWindow.Controls.Find("Split", false).FirstOrDefault() is SplitContainer Split)
             {
                 BoxControl = Split.Panel2.Controls;
-                width = Split.Width;
-                height = Split.Height;
+                width = Split.Panel2.Width;
+                height = Split.Panel2.Height;
                 location = new Point(0, 0);
             }
             if (BoxControl.Find("Box", false).FirstOrDefault() is not RichTextBox Box)
@@ -1506,19 +1521,6 @@ public abstract class BaseForm : Form, IDisposable
             TokenSource = new();
         }
         JobManager.Start();
-    }
-
-    #endregion
-
-    #region 获取WebView2
-
-    /// <summary>
-    /// 获取WebView2
-    /// </summary>
-    /// <returns></returns>
-    protected WebView2? GetWebView2()
-    {
-        return WebView2;
     }
 
     #endregion
