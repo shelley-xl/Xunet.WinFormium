@@ -630,12 +630,24 @@ public abstract class BaseForm : Form, IDisposable
                 bottom = Status.Height;
             }
 
+            var UserDataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Xunet.WinFormium", "cache", "WebView2Cache", Assembly.GetEntryAssembly()?.GetName().Name ?? Guid.NewGuid().ToString());
+
+            if (!Directory.Exists(UserDataDir)) Directory.CreateDirectory(UserDataDir);
+
+            // 使用指定的路径创建 WebView2 环境
+            // 第一个参数为 browserExecutableFolder，传入 null 表示使用系统安装的或应用自带的 WebView2 Runtime
+            var ENV = CoreWebView2Environment.CreateAsync(null, UserDataDir).GetAwaiter().GetResult();
+
             WebView2 = new()
             {
                 Name = "WebView2",
                 Dock = DockStyle.Fill,
-                Source = new Uri(BaseWebView2Source),
             };
+
+            // 必须在设置 Source 属性前初始化环境
+            WebView2.EnsureCoreWebView2Async(ENV).GetAwaiter();
+
+            WebView2.Source = new Uri(BaseWebView2Source);
 
             WebView2.CoreWebView2InitializationCompleted += (sender, e) =>
             {
