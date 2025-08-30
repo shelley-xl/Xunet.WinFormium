@@ -31,14 +31,14 @@ public class MainForm : BaseForm
     protected override bool UseDefaultMenu => true;
 
     /// <summary>
-    /// 是否使用表格数据展示
-    /// </summary>
-    protected override bool UseDatagridView => true;
-
-    /// <summary>
     /// 是否使用状态栏
     /// </summary>
     protected override bool UseStatusStrip => true;
+
+    /// <summary>
+    /// 是否使用表格数据展示
+    /// </summary>
+    protected override bool UseDatagridView => true;
 
     /// <summary>
     /// 执行任务

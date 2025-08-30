@@ -8,7 +8,7 @@ internal static class Program
     {
         var builder = WinFormiumApplication.CreateBuilder();
 
-        builder.Services.AddWinFormium<WebView2Form>(options =>
+        builder.Services.AddWinFormium<MainForm>(options =>
         {
             options.Headers = new()
             {
