@@ -213,7 +213,7 @@ public class MainForm : BaseForm
 CnBlogsModel.cs
 
 ```c#
-namespace Xunet.WinFormium.Tests.Models;
+namespace Xunet.WinFormium.Simples.Models;
 
 using SqlSugar;
 
@@ -236,7 +236,7 @@ public class CnBlogsModel
 WeiboEntity.cs
 
 ```c#
-namespace Xunet.WinFormium.Tests.Entities;
+namespace Xunet.WinFormium.Simples.Entities;
 
 using SuperSpider;
 
@@ -298,13 +298,13 @@ public class WeiboEntity : SpiderEntity
 HomeController.cs
 
 ```c#
-namespace Xunet.WinFormium.Tests.Controllers;
+namespace Xunet.WinFormium.Simples.Controllers;
 
 using Microsoft.AspNetCore.Mvc;
 using Xunet.WinFormium.Controllers;
-using Xunet.WinFormium.Tests.Models;
+using Xunet.WinFormium.Simples.Models;
 using SqlSugar;
-using Xunet.WinFormium.Tests.Entities;
+using Xunet.WinFormium.Simples.Entities;
 using Microsoft.AspNetCore.Http;
 
 /// <summary>
