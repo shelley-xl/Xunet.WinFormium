@@ -46,7 +46,7 @@ internal static class Program
             options.Storage = new()
             {
                 DataVersion = "24.8.9.1822",
-                DbName = "Xunet.WinFormium.Tests",
+                DbName = "Xunet.WinFormium.Simples",
                 EntityTypes = [typeof(CnBlogsModel)]
             };
             options.Snowflake = new()
@@ -78,12 +78,12 @@ internal static class Program
 MainForm.cs
 
 ```c#
-namespace Xunet.WinFormium.Tests;
+namespace Xunet.WinFormium.Simples.Windows;
 
 using SuperSpider;
 using Xunet.WinFormium.Windows;
-using Xunet.WinFormium.Tests.Entities;
-using Xunet.WinFormium.Tests.Models;
+using Xunet.WinFormium.Simples.Entities;
+using Xunet.WinFormium.Simples.Models;
 
 /// <summary>
 /// 主窗体
@@ -111,9 +111,40 @@ public class MainForm : BaseForm
     protected override bool UseDefaultMenu => true;
 
     /// <summary>
+    /// 是否使用状态栏
+    /// </summary>
+    protected override bool UseStatusStrip => true;
+
+    /// <summary>
     /// 是否使用表格数据展示
     /// </summary>
     protected override bool UseDatagridView => true;
+
+    /// <summary>
+    /// 任务取消
+    /// </summary>
+    /// <param name="ex"></param>
+    /// <returns></returns>
+    protected override async Task DoCanceledExceptionAsync(OperationCanceledException ex)
+    {
+        AppendBox("任务取消！", Color.Red);
+
+        await Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// 系统异常
+    /// </summary>
+    /// <param name="ex"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    protected override async Task DoExceptionAsync(Exception ex, CancellationToken cancellationToken)
+    {
+        AppendBox("系统异常！", Color.Red);
+        AppendBox(ex.ToString(), Color.Red);
+
+        await Task.CompletedTask;
+    }
 
     /// <summary>
     /// 执行任务
@@ -122,7 +153,7 @@ public class MainForm : BaseForm
     /// <returns></returns>
     protected override async Task DoWorkAsync(CancellationToken cancellationToken)
     {
-        AppendBox("正在测试，请稍后 ...", ColorTranslator.FromHtml("#1296db"));
+        AppendBox("正在采集数据，请稍后 ...", ColorTranslator.FromHtml("#1296db"));
 
         var data = await Db.Queryable<CnBlogsModel>().OrderByDescending(x => x.CreateTime).ToListAsync(cancellationToken);
 
@@ -172,33 +203,7 @@ public class MainForm : BaseForm
 
         AppendDatagridView(data);
 
-        AppendBox("测试完成！", ColorTranslator.FromHtml("#1296db"));
-
-        await Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// 系统异常
-    /// </summary>
-    /// <param name="ex"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    protected override async Task DoExceptionAsync(Exception ex, CancellationToken cancellationToken)
-    {
-        AppendBox("系统异常！", Color.Red);
-        AppendBox(ex.ToString(), Color.Red);
-
-        await Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// 任务取消
-    /// </summary>
-    /// <param name="ex"></param>
-    /// <returns></returns>
-    protected override async Task DoCanceledExceptionAsync(OperationCanceledException ex)
-    {
-        AppendBox("任务取消！", Color.Red);
+        AppendBox("采集完成！", ColorTranslator.FromHtml("#1296db"));
 
         await Task.CompletedTask;
     }
