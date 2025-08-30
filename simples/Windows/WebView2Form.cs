@@ -92,7 +92,7 @@ public class WebView2Form : BaseForm
     /// <param name="sender"></param>
     /// <param name="e"></param>
     /// <param name="cancellationToken"></param>
-    protected override async Task WebView2InitializationCompleted(object? sender, CoreWebView2InitializationCompletedEventArgs e, CancellationToken cancellationToken)
+    protected override async Task WebView2InitializationCompletedAsync(object? sender, CoreWebView2InitializationCompletedEventArgs e, CancellationToken cancellationToken)
     {
         AppendBox("初始化完成！");
 
@@ -105,13 +105,20 @@ public class WebView2Form : BaseForm
     /// <param name="sender"></param>
     /// <param name="e"></param>
     /// <param name="cancellationToken"></param>
-    protected override async Task WebView2NavigationCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e, CancellationToken cancellationToken)
+    protected override async Task WebView2NavigationCompletedAsync(object? sender, CoreWebView2NavigationCompletedEventArgs e, CancellationToken cancellationToken)
     {
         if (sender is WebView2 webView2 && e.IsSuccess)
         {
             AppendBox(webView2.Source.AbsoluteUri);
 
-            await Task.CompletedTask;
+            switch (webView2.Source.AbsolutePath)
+            {
+                case string x when x.Equals("/"):
+                    webView2.Source = new Uri("https://www.51xulai.net");
+                    break;
+            }
         }
+
+        await Task.CompletedTask;
     }
 }
