@@ -571,18 +571,17 @@ public abstract class BaseForm : Form, IDisposable
             };
             statusStrip.Items.Add(timeLabel);
             HostWindow.Controls.Add(statusStrip);
+
             JobManager.AddJob(() =>
             {
-                if (HostWindow == null || HostWindow.IsDisposed) return;
-
                 var counter = new PerformanceCounter("Process", "Working Set - Private", Process.GetCurrentProcess().ProcessName);
                 var usedMemory = Math.Round(counter.RawValue / 1024.0 / 1024.0, 1);
                 int hours = seconds / 3600;
                 int minutes = seconds % 3600 / 60;
                 int remainingSeconds = seconds % 3600 % 60;
                 var nextRun = string.Empty;
-                var doWork = JobManager.GetSchedule("DoWork");
-                if (doWork != null)
+
+                if (JobManager.GetSchedule("DoWork") is Schedule doWork)
                 {
                     nextRun = $"，下次执行还剩：{(int)(doWork.NextRun - DateTime.Now).TotalSeconds:00} 秒";
                 }
@@ -591,7 +590,7 @@ public abstract class BaseForm : Form, IDisposable
                     nextRun = "，未开启定时作业";
                 }
 
-                BeginInvoke(new Action(() =>
+                InvokeOnUIThread(new Action(() =>
                 {
                     timeLabel.Text = $"在线时长：{hours:00} 小时 {minutes:00} 分 {remainingSeconds:00} 秒，内存：{usedMemory:0.0} MB{nextRun}";
                 }));
@@ -634,9 +633,15 @@ public abstract class BaseForm : Form, IDisposable
 
             if (!Directory.Exists(UserDataDir)) Directory.CreateDirectory(UserDataDir);
 
+            // 环境选项
+            var options = new CoreWebView2EnvironmentOptions
+            {
+                
+            };
+
             // 使用指定的路径创建 WebView2 环境
             // 第一个参数为 browserExecutableFolder，传入 null 表示使用系统安装的或应用自带的 WebView2 Runtime
-            var ENV = CoreWebView2Environment.CreateAsync(null, UserDataDir).GetAwaiter().GetResult();
+            var ENV = CoreWebView2Environment.CreateAsync(null, UserDataDir, options).GetAwaiter().GetResult();
 
             WebView2 = new()
             {
@@ -847,6 +852,8 @@ public abstract class BaseForm : Form, IDisposable
         }
         if (e.CloseReason == CloseReason.UserClosing)
         {
+            NotifyIcon?.Dispose();
+            NotifyIcon = null;
             HostWindow = null;
             Application.Exit();
         }
@@ -983,7 +990,8 @@ public abstract class BaseForm : Form, IDisposable
     /// 纯文本输出
     /// </summary>
     /// <param name="text"></param>
-    protected void AppendText(string? text)
+    /// <param name="color"></param>
+    protected void AppendText(string? text, Color? color = null)
     {
         if (HostWindow == null || HostWindow.IsDisposed) return;
 
@@ -995,13 +1003,14 @@ public abstract class BaseForm : Form, IDisposable
                 Message = new Label
                 {
                     Name = "Message",
-                    ForeColor = Color.Gray,
+                    ForeColor = color ?? Color.Gray,
                     Width = HostWindow.Width,
                     Height = HostWindow.Height - titleHeight,
                     TextAlign = ContentAlignment.MiddleCenter
                 };
                 HostWindow.Controls.Add(Message);
             }
+            Message.ForeColor = color ?? Color.Gray;
             Message.Text = text;
         });
     }
@@ -1153,14 +1162,7 @@ public abstract class BaseForm : Form, IDisposable
 
     #region 二维码输出
 
-    /// <summary>
-    /// 二维码输出
-    /// </summary>
-    /// <param name="url">二维码url</param>
-    /// <param name="bytes">二维码byte[]</param>
-    /// <param name="size">二维码大小</param>
-    /// <param name="text">提示文本</param>
-    protected void AppendQRCode(string? url = null, byte[]? bytes = null, int size = 300, string text = "用 [ 微信 ] 扫一扫")
+    void AppendQRCode(string? url = null, byte[]? bytes = null, int size = 300, string text = "用 [ 微信 ] 扫一扫")
     {
         if (HostWindow == null || HostWindow.IsDisposed) return;
 
@@ -1208,6 +1210,28 @@ public abstract class BaseForm : Form, IDisposable
             }
             QRCodeMessage.Text = text;
         });
+    }
+
+    /// <summary>
+    /// 二维码输出
+    /// </summary>
+    /// <param name="url">二维码url</param>
+    /// <param name="size">二维码大小</param>
+    /// <param name="text">提示文本</param>
+    protected void AppendQRCode(string? url, int size = 300, string text = "用 [ 微信 ] 扫一扫")
+    {
+        AppendQRCode(url, null, size, text);
+    }
+
+    /// <summary>
+    /// 二维码输出
+    /// </summary>
+    /// <param name="bytes">二维码byte[]</param>
+    /// <param name="size">二维码大小</param>
+    /// <param name="text">提示文本</param>
+    protected void AppendQRCode(byte[]? bytes, int size = 300, string text = "用 [ 微信 ] 扫一扫")
+    {
+        AppendQRCode(null, bytes, size, text);
     }
 
     #endregion
