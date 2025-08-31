@@ -68,7 +68,7 @@ public class QRCodeForm : BaseForm
 
         if (result.Success)
         {
-            AppendText("正在加载二维码，请稍后 ...");
+            AppendText("正在加载二维码，请稍后 ...", ColorTranslator.FromHtml("#1296db"));
 
             var alipay = AlipayService.CreateDefaultService();
 
@@ -76,7 +76,7 @@ public class QRCodeForm : BaseForm
 
             if (code.Success)
             {
-                AppendQRCode(bytes: code.QRCodeBytes, size: 300, text: "用 [ 支付宝 ] 扫一扫");
+                AppendQRCode(code.QRCodeBytes, text: "用 [ 支付宝 ] 扫一扫");
 
                 while (!cancellationToken.IsCancellationRequested)
                 {
