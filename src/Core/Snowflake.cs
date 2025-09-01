@@ -14,4 +14,9 @@ public class Snowflake
     /// 唯一工作机器Id
     /// </summary>
     public ushort WorkerId { get; set; } = 1;
+
+    /// <summary>
+    /// 唯一数据中心Id
+    /// </summary>
+    public ushort DataCenterId { get; set; } = 1;
 }

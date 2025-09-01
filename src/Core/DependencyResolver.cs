@@ -58,4 +58,14 @@ public class DependencyResolver
     {
         return _serviceProvider.GetRequiredService<T>();
     }
+
+    /// <summary>
+    /// 获取Service
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public T? GetService<T>()
+    {
+        return _serviceProvider.GetService<T>();
+    }
 }

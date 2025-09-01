@@ -8,7 +8,6 @@ namespace Xunet.WinFormium;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunet.WinFormium.Core;
-using Yitter.IdGenerator;
 using SqlSugar;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.OpenApi.Models;
@@ -127,9 +126,8 @@ public static class WinFormiumApplicationBuilderExtensions
 
         if (startupOptions != null && startupOptions.Snowflake != null)
         {
-            var options = new IdGeneratorOptions(startupOptions.Snowflake.WorkerId);
-
-            YitIdHelper.SetIdGenerator(options);
+            SnowFlakeSingle.WorkId = startupOptions.Snowflake.WorkerId;
+            SnowFlakeSingle.DatacenterId = startupOptions.Snowflake.DataCenterId;
         }
 
         services.AddWinFormium<T>();

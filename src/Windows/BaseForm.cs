@@ -12,12 +12,12 @@ using Xunet.Newtonsoft.Json;
 using Xunet.Newtonsoft.Json.Serialization;
 using Xunet.FluentScheduler;
 using Xunet.WinFormium.Core;
-using Yitter.IdGenerator;
 using HtmlAgilityPack;
 using SqlSugar;
 using System.Diagnostics;
 using Microsoft.Web.WebView2.WinForms;
 using Microsoft.Web.WebView2.Core;
+using Microsoft.AspNetCore.Builder;
 
 /// <summary>
 /// 窗体基类
@@ -36,6 +36,17 @@ public abstract class BaseForm : Form, IDisposable
     #endregion
 
     #region 私有
+
+    /// <summary>
+    /// WebApp
+    /// </summary>
+    static WebApplication? WebApp
+    {
+        get
+        {
+            return DependencyResolver.Current?.GetService<WebApplication>();
+        }
+    }
 
     /// <summary>
     /// 配置
@@ -96,6 +107,17 @@ public abstract class BaseForm : Form, IDisposable
         get
         {
             return $"v{Assembly.GetEntryAssembly()?.GetName().Version}";
+        }
+    }
+
+    /// <summary>
+    /// 版本号
+    /// </summary>
+    protected static string SdkVersion
+    {
+        get
+        {
+            return $"v{Assembly.GetExecutingAssembly().GetName().Version}";
         }
     }
 
@@ -419,7 +441,7 @@ public abstract class BaseForm : Form, IDisposable
                     // 设置保存文件的类型
                     Filter = "日志文件|*.log",
                     // 设置默认文件名
-                    FileName = $"console_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}.log"
+                    FileName = $"{DateTime.Now:yyyyMMddHHmmssffff}.log"
                 };
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
@@ -447,7 +469,7 @@ public abstract class BaseForm : Form, IDisposable
 
             tsmi_about.Click += (sender, e) =>
             {
-                MessageBox.Show($"当前版本：{Version}\r\n\r\n开发作者：徐来（QQ386710057）", "关于软件", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"软件版本：{Version}\r\n\r\nSDK版本：{SdkVersion}\r\n\r\n开发作者：徐来（QQ386710057）\r\n\r\n个人博客：https://www.51xulai.net", "关于软件", MessageBoxButtons.OK, MessageBoxIcon.Information);
             };
 
             // 绑定
@@ -490,12 +512,12 @@ public abstract class BaseForm : Form, IDisposable
 
             var tsmi_about_1 = new ToolStripMenuItem
             {
-                Text = "关于软件",
+                Text = "关于",
             };
 
             var tsmi_close_1 = new ToolStripMenuItem
             {
-                Text = "关闭软件",
+                Text = "退出",
             };
 
             tsmi_main.Click += (sender, e) =>
@@ -511,6 +533,13 @@ public abstract class BaseForm : Form, IDisposable
 
             tsmi_close_1.Click += (sender, e) =>
             {
+                if (!TokenSource.IsCancellationRequested)
+                {
+                    TokenSource.Cancel();
+                }
+                NotifyIcon?.Dispose();
+                NotifyIcon = null;
+                HostWindow = null;
                 Environment.Exit(0);
             };
 
@@ -565,6 +594,15 @@ public abstract class BaseForm : Form, IDisposable
             {
                 Name = "StatusStrip",
             };
+            if (WebApp != null && WebApp.Urls.Count > 0)
+            {
+                var portLabel = new ToolStripStatusLabel
+                {
+                    Text = $"监听端口：{string.Join(",", WebApp.Urls.Select(x => new Uri(x).Port))}",
+                };
+                statusStrip.Items.Add(portLabel);
+                statusStrip.Items.Add(new ToolStripSeparator());
+            }
             var timeLabel = new ToolStripStatusLabel
             {
                 Text = "loading...",
@@ -572,10 +610,20 @@ public abstract class BaseForm : Form, IDisposable
             statusStrip.Items.Add(timeLabel);
             HostWindow.Controls.Add(statusStrip);
 
+            PerformanceCounter? counter = null;
+
+            Task.Run(() =>
+            {
+                counter = new PerformanceCounter("Process", "Working Set - Private", Process.GetCurrentProcess().ProcessName);
+            });
+
             JobManager.AddJob(() =>
             {
-                var counter = new PerformanceCounter("Process", "Working Set - Private", Process.GetCurrentProcess().ProcessName);
-                var usedMemory = Math.Round(counter.RawValue / 1024.0 / 1024.0, 1);
+                var usedMemory = 0d;
+                if (counter != null)
+                {
+                    usedMemory = Math.Round(counter.RawValue / 1024.0 / 1024.0, 1);
+                }
                 int hours = seconds / 3600;
                 int minutes = seconds % 3600 / 60;
                 int remainingSeconds = seconds % 3600 % 60;
@@ -583,16 +631,16 @@ public abstract class BaseForm : Form, IDisposable
 
                 if (JobManager.GetSchedule("DoWork") is Schedule doWork)
                 {
-                    nextRun = $"，下次执行还剩：{(int)(doWork.NextRun - DateTime.Now).TotalSeconds:00} 秒";
+                    nextRun = $"下次执行还剩：{(int)(doWork.NextRun - DateTime.Now).TotalSeconds:00} 秒";
                 }
                 else
                 {
-                    nextRun = "，未开启定时作业";
+                    nextRun = "未开启定时作业";
                 }
 
                 InvokeOnUIThread(new Action(() =>
                 {
-                    timeLabel.Text = $"在线时长：{hours:00} 小时 {minutes:00} 分 {remainingSeconds:00} 秒，内存：{usedMemory:0.0} MB{nextRun}";
+                    timeLabel.Text = $"在线时长：{hours:00} 小时 {minutes:00} 分 {remainingSeconds:00} 秒，内存：{usedMemory:0.0} MB，{nextRun}";
                 }));
 
                 seconds++;
@@ -636,7 +684,7 @@ public abstract class BaseForm : Form, IDisposable
             // 环境选项
             var options = new CoreWebView2EnvironmentOptions
             {
-                
+
             };
 
             // 使用指定的路径创建 WebView2 环境
@@ -899,7 +947,7 @@ public abstract class BaseForm : Form, IDisposable
 
         if (HostWindow.InvokeRequired)
         {
-            HostWindow.Invoke(new System.Windows.Forms.MethodInvoker(action));
+            HostWindow?.Invoke(new System.Windows.Forms.MethodInvoker(action));
         }
         else
         {
@@ -919,7 +967,7 @@ public abstract class BaseForm : Form, IDisposable
 
         if (HostWindow.InvokeRequired)
         {
-            return HostWindow.Invoke(method, args);
+            return HostWindow?.Invoke(method, args);
         }
 
         return method.DynamicInvoke(args);
@@ -938,7 +986,7 @@ public abstract class BaseForm : Form, IDisposable
 
         if (HostWindow.InvokeRequired)
         {
-            return (T?)HostWindow.Invoke(method, args);
+            return (T?)HostWindow?.Invoke(method, args);
         }
 
         return (T?)method.DynamicInvoke(args);
@@ -1076,13 +1124,16 @@ public abstract class BaseForm : Form, IDisposable
                 };
                 BoxControl.Add(Box);
             }
+            if (Box.Lines.Length > 0)
+            {
+                Box.AppendText(Environment.NewLine);
+            };
             Box.SelectionStart = Box.TextLength;
             Box.SelectionLength = 0;
             Box.SelectionColor = color ?? Color.Black;
-            Box.AppendText($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}：{text}\r\n");
+            Box.AppendText($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}：{text}");
             Box.SelectionColor = Box.ForeColor;
             Box.ScrollToCaret();
-            Box.Focus();
         });
     }
 
@@ -1119,7 +1170,7 @@ public abstract class BaseForm : Form, IDisposable
                             Location = new Point(0, offset),
                         };
                         TabPageHome.Controls.Add(DatagridViewTitle);
-                        offset += DatagridViewTitle.Height + offset;
+                        offset += DatagridViewTitle.Height;
                     }
                     DatagridViewTitle.Text = title;
                     if (TabPageHome.Controls.Find("DatagridView", false).FirstOrDefault() is not DataGridView DataGridView)
@@ -1517,7 +1568,7 @@ public abstract class BaseForm : Form, IDisposable
     /// <returns></returns>
     protected static long CreateNextId()
     {
-        return YitIdHelper.NextId();
+        return SnowFlakeSingle.Instance.NextId();
     }
 
     /// <summary>
@@ -1526,7 +1577,7 @@ public abstract class BaseForm : Form, IDisposable
     /// <returns></returns>
     protected static string CreateNextIdString()
     {
-        return YitIdHelper.NextId().ToString();
+        return SnowFlakeSingle.Instance.NextId().ToString();
     }
 
     #endregion
