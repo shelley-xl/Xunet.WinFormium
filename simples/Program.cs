@@ -13,19 +13,19 @@ internal static class Program
             options.Headers = new()
             {
                 {
-                    HeaderNames.UserAgent,
-                    "Mozilla/5.0 (iPhone; CPU iPhone OS 6_1_3 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Mobile/10B329 MicroMessenger/5.0.1"
+                    HeaderNames.UserAgent, "Mozilla/5.0 (iPhone; CPU iPhone OS 6_1_3 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Mobile/10B329 MicroMessenger/5.0.1"
                 }
             };
             options.Storage = new()
             {
                 DataVersion = "24.8.9.1822",
                 DbName = "Xunet.WinFormium.Simples",
-                EntityTypes = [typeof(CnBlogsModel)]
+                EntityTypes = [typeof(CnBlogsModel)],
             };
             options.Snowflake = new()
             {
-                WorkerId = 1
+                WorkerId = 1,
+                DataCenterId = 1,
             };
         });
 
