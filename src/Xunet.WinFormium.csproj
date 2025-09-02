@@ -14,7 +14,7 @@
 		<OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<!-- version numbers will be updated by build -->
-		<Version>1.0.33</Version>
+		<Version>1.0.34</Version>
 		<TotalDays>$([System.DateTime]::Now.Date.Subtract($([System.DateTime]::Parse($([System.String]::Format("{0}-8-5",2024))))).TotalDays)</TotalDays>
 		<AssemblyVersion>$(Version).$(TotalDays)</AssemblyVersion>
 		<FileVersion>$(Version).$(TotalDays)</FileVersion>
