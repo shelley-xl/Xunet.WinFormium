@@ -22,7 +22,7 @@ using Microsoft.AspNetCore.Builder;
 /// <summary>
 /// 窗体基类
 /// </summary>
-public abstract class BaseForm : Form, IDisposable
+public abstract class BaseForm : Form, IMiniFormium, IDisposable
 {
     #region 字段
 
@@ -275,9 +275,11 @@ public abstract class BaseForm : Form, IDisposable
         FormBorderStyle = BaseFormBorderStyle;
         WindowState = BaseWindowState;
         ClientSize = BaseClientSize;
-        MinimumSize = BaseClientSize;
+        MinimumSize = Size;
+
         FormClosing += Form_FormClosing;
         Load += Form_Load;
+
         ResumeLayout(false);
     }
 
@@ -580,6 +582,9 @@ public abstract class BaseForm : Form, IDisposable
 
     #region 初始化状态栏
 
+    StatusStrip statusStrip = default!;
+    ToolStripStatusLabel timeLabel = default!;
+
     /// <summary>
     /// 初始化状态栏
     /// </summary>
@@ -589,11 +594,11 @@ public abstract class BaseForm : Form, IDisposable
 
         InvokeOnUIThread(() =>
         {
-            int seconds = 0;
-            var statusStrip = new StatusStrip
+            statusStrip = new StatusStrip
             {
                 Name = "StatusStrip",
             };
+
             if (WebApp != null && WebApp.Urls.Count > 0)
             {
                 var portLabel = new ToolStripStatusLabel
@@ -603,53 +608,12 @@ public abstract class BaseForm : Form, IDisposable
                 statusStrip.Items.Add(portLabel);
                 statusStrip.Items.Add(new ToolStripSeparator());
             }
-            var timeLabel = new ToolStripStatusLabel
-            {
-                Text = "loading...",
-            };
+
+            timeLabel = new ToolStripStatusLabel();
+
             statusStrip.Items.Add(timeLabel);
+
             HostWindow.Controls.Add(statusStrip);
-
-            PerformanceCounter? counter = null;
-
-            Task.Run(() =>
-            {
-                counter = new PerformanceCounter("Process", "Working Set - Private", Process.GetCurrentProcess().ProcessName);
-            });
-
-            JobManager.AddJob(() =>
-            {
-                var usedMemory = 0d;
-                if (counter != null)
-                {
-                    usedMemory = Math.Round(counter.RawValue / 1024.0 / 1024.0, 1);
-                }
-                int hours = seconds / 3600;
-                int minutes = seconds % 3600 / 60;
-                int remainingSeconds = seconds % 3600 % 60;
-                var nextRun = string.Empty;
-
-                if (JobManager.GetSchedule("DoWork") is Schedule doWork)
-                {
-                    nextRun = $"下次执行还剩：{(int)(doWork.NextRun - DateTime.Now).TotalSeconds:00} 秒";
-                }
-                else
-                {
-                    nextRun = "未开启定时作业";
-                }
-
-                InvokeOnUIThread(new Action(() =>
-                {
-                    timeLabel.Text = $"在线时长：{hours:00} 小时 {minutes:00} 分 {remainingSeconds:00} 秒，内存：{usedMemory:0.0} MB，{nextRun}";
-                }));
-
-                seconds++;
-            },
-            schedule =>
-            {
-                schedule.WithName("PerformanceCounter");
-                schedule.ToRunNow().AndEvery(1).Seconds();
-            });
         });
     }
 
@@ -859,18 +823,22 @@ public abstract class BaseForm : Form, IDisposable
 
     void AddJob()
     {
-        if (!string.IsNullOrEmpty(BaseDoWorkCron))
+        JobManager.AddJob(DoWork, schedule =>
         {
-            JobManager.AddJob(DoWork, schedule => schedule.WithName("DoWork").ToRunWithCron(BaseDoWorkCron));
-        }
-        else if (BaseDoWorkInterval > 0)
-        {
-            JobManager.AddJob(DoWork, schedule => schedule.WithName("DoWork").ToRunNow().AndEvery(BaseDoWorkInterval).Seconds());
-        }
-        else
-        {
-            DoWork();
-        }
+            schedule.WithName("DoWork");
+            if (!string.IsNullOrEmpty(BaseDoWorkCron))
+            {
+                schedule.ToRunWithCron(BaseDoWorkCron);
+            }
+            else if (BaseDoWorkInterval > 0)
+            {
+                schedule.ToRunNow().AndEvery(BaseDoWorkInterval).Seconds();
+            }
+            else
+            {
+                schedule.ToRunNow();
+            }
+        });
     }
 
     /// <summary>
@@ -878,9 +846,51 @@ public abstract class BaseForm : Form, IDisposable
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    protected void Form_Load(object? sender, EventArgs e)
+    void Form_Load(object? sender, EventArgs e)
     {
+        PerformanceCounter? counter = null;
+
         Task.Run(AddJob);
+
+        Task.Run(() =>
+        {
+            counter = new PerformanceCounter("Process", "Working Set - Private", Process.GetCurrentProcess().ProcessName);
+        });
+
+        Task.Run(async () =>
+        {
+            while (!IsDisposed && !TokenSource.IsCancellationRequested)
+            {
+                var seconds = 0;
+                var usedMemory = 0d;
+                if (counter != null)
+                {
+                    usedMemory = Math.Round(counter.RawValue / 1024.0 / 1024.0, 1);
+                }
+                int hours = seconds / 3600;
+                int minutes = seconds % 3600 / 60;
+                int remainingSeconds = seconds % 3600 % 60;
+                var nextRun = string.Empty;
+
+                if (JobManager.GetSchedule("DoWork") is Schedule doWork)
+                {
+                    nextRun = $"下次执行还剩：{(int)(doWork.NextRun - DateTime.Now).TotalSeconds:00} 秒";
+                }
+                else
+                {
+                    nextRun = "未开启定时作业";
+                }
+
+                InvokeOnUIThread(new Action(() =>
+                {
+                    timeLabel.Text = $"在线时长：{hours:00} 小时 {minutes:00} 分 {remainingSeconds:00} 秒，内存：{usedMemory:0.0} MB，{nextRun}";
+                }));
+
+                seconds++;
+
+                await Task.Delay(1000);
+            }
+        });
     }
 
     #endregion
@@ -892,17 +902,19 @@ public abstract class BaseForm : Form, IDisposable
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    protected virtual void Form_FormClosing(object? sender, FormClosingEventArgs e)
+    void Form_FormClosing(object? sender, FormClosingEventArgs e)
     {
         if (!TokenSource.IsCancellationRequested)
         {
             TokenSource.Cancel();
         }
+
         if (e.CloseReason == CloseReason.UserClosing)
         {
             NotifyIcon?.Dispose();
             NotifyIcon = null;
             HostWindow = null;
+
             Application.Exit();
         }
     }

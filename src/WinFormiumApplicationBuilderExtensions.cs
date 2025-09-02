@@ -14,7 +14,6 @@ using Microsoft.OpenApi.Models;
 using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Xunet.WinFormium.Dtos;
-using Xunet.WinFormium.Windows;
 using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
 using System.Text.Json;
@@ -50,9 +49,7 @@ public static class WinFormiumApplicationBuilderExtensions
             services.AddSingleton(createAction);
         }
 
-        Type[] types = [typeof(BaseForm), typeof(Form)];
-
-        var forms = typeof(T).Assembly.GetTypes().Where(x => x.Name != typeof(T).Name && types.Contains(x.BaseType)).ToList();
+        var forms = typeof(T).Assembly.GetTypes().Where(x => x.GetInterfaces().Contains(typeof(IMiniFormium)) && x.IsClass).ToArray();
 
         foreach (var form in forms)
         {
@@ -69,7 +66,7 @@ public static class WinFormiumApplicationBuilderExtensions
     /// <param name="services"></param>
     /// <param name="setupOptions"></param>
     /// <returns></returns>
-    public static IServiceCollection AddWinFormium<T>(this IServiceCollection services, Action<StartupOptions> setupOptions) where T : BaseForm
+    public static IServiceCollection AddWinFormium<T>(this IServiceCollection services, Action<StartupOptions> setupOptions) where T : Form, IMiniFormium
     {
         var startupOptions = new StartupOptions();
 
