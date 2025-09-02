@@ -1,3 +1,7 @@
+## [1.0.33](https://github.com/shelley-xl/Xunet.WinFormium/commit/00353d78e64b227feddc2f403a6420998195097d) (2025-09-02)
+
+- 修复已知问题
+
 ## [1.0.32](https://github.com/shelley-xl/Xunet.WinFormium/commit/bb4466736032441938d74f27ae6c4cbe12c89a2a) (2025-09-02)
 
 - 优化若干代码
