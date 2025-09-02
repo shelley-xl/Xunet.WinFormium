@@ -850,7 +850,7 @@ public abstract class BaseForm : Form, IMiniFormium, IDisposable
     {
         PerformanceCounter? counter = null;
 
-        Task.Run(() =>
+        if (UseStatusStrip) Task.Run(() =>
         {
             counter = new PerformanceCounter("Process", "Working Set - Private", Process.GetCurrentProcess().ProcessName);
         });
@@ -861,7 +861,7 @@ public abstract class BaseForm : Form, IMiniFormium, IDisposable
 
             var seconds = 0;
 
-            while (!IsDisposed && !TokenSource.IsCancellationRequested)
+            while (UseStatusStrip && !IsDisposed && !TokenSource.IsCancellationRequested)
             {
                 var usedMemory = 0d;
                 if (counter != null)
